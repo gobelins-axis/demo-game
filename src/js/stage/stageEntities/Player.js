@@ -27,28 +27,8 @@ export default class Humans extends Object3D{
             turnRight: false,
         }; 
 
+        this._setupPlayerControls();
 
-        window.__arcadeFeu.registerKey('a', 'ArrowLeft');
-        window.__arcadeFeu.registerKey('b', 'ArrowRight');
-        console.log("window.__arcadeFeu", window.__arcadeFeu);
-        window.__arcadeFeu.ipcRenderer.on("keydown", () => {
-            console.log("onKeyDown IPC");
-        });
-        window.__arcadeFeu.addEventListener("keydown", (e) => {
-            if(e.machineKey === "a"){
-                this._playerControls.turnLeft = true;
-            }else {
-                this._playerControls.turnRight = true;
-            }
-        });
-        
-        window.__arcadeFeu.addEventListener("keyup", (e) => {
-            this._playerControls.turnLeft = false;
-            this._playerControls.turnRight = false;
-        });
-        
-        // window.addEventListener("keydown", (e) => this._keyDownHandler(e) );
-        // window.addEventListener("keyup", (e) => this._keyUpHandler(e) );
     }
 
 
@@ -73,7 +53,6 @@ export default class Humans extends Object3D{
             AppManager.CAMERA.lookAt(this._model.scene.position);
         }});
         
-        // gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerModel.rotation.y += 0.3, -0.9, 0.9)});
         
         if(this._playerControls.turnLeft) {
             this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += 0.3, -4.5, 4.5);
@@ -81,6 +60,9 @@ export default class Humans extends Object3D{
         if(this._playerControls.turnRight) {
             this._playerModel.position.x = Tools.clamp(this._playerModel.position.x -= 0.3, -4.5, 4.5);
         }
+
+        this._playerControls.turnLeft = false;
+        this._playerControls.turnRight = false;
         
     }
 
@@ -89,22 +71,16 @@ export default class Humans extends Object3D{
     */
 
     _setupPlayerControls(){
+        window.__arcadeFeu.registerKey('a', 'ArrowLeft');
+        window.__arcadeFeu.registerKey('b', 'ArrowRight');
 
-    } 
-    _keyDownHandler(e) {
-        switch (e.keyCode) {
-            case 37:
+        window.__arcadeFeu.addEventListener("keydown", (e) => {
+            if(e.machineKey === "a"){
                 this._playerControls.turnLeft = true;
-                break;
-            case 39:
+            }
+            if(e.machineKey === "b") {
                 this._playerControls.turnRight = true;
-                break;
-        }
-    }
-
-    _keyUpHandler() {
-        this._playerControls.turnLeft = false;
-        this._playerControls.turnRight = false;
-
-    }
+            }
+        });
+    } 
 }
