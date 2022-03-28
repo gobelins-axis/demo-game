@@ -18,7 +18,18 @@ export default class Humans extends Object3D{
         this._model = AssetsManager.models.Player;
         this._options = {
             playerSpeed: 0.1,
+        };
+
+        this._turnAcceleration = 0;
+
+        this._playerControls = {
+            turnLeft: false,
+            turnRight: false,
         }; 
+
+
+        window.addEventListener("keydown", (e) => this._keyDownHandler(e) );
+        window.addEventListener("keyup", (e) => this._keyUpHandler(e) );
     }
 
 
@@ -32,20 +43,49 @@ export default class Humans extends Object3D{
         
         AppManager.PLAYER = this._playerModel;
 
-        this.add( this._playerModel);
+        this.add(this._playerModel);
     }
 
     update(delta) {
         this._timeUpdate += 0.02;
         this._playerModel.position.z += this._options.playerSpeed;
-        AppManager.CAMERA.lookAt(this._model.scene.position);
-        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 10});
 
-        // this._modelTalk.scene.getObjectByName("Human").material.uniforms.uTime.value = this._timeUpdate;
+        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, onUpdate: () => {
+            AppManager.CAMERA.lookAt(this._model.scene.position);
+        }});
+        
+        // gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerModel.rotation.y += 0.3, -0.9, 0.9)});
+        
+        if(this._playerControls.turnLeft) {
+            this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += 0.3, -4.5, 4.5);
+        }
+        if(this._playerControls.turnRight) {
+            this._playerModel.position.x = Tools.clamp(this._playerModel.position.x -= 0.3, -4.5, 4.5);
+        }
+        
     }
 
     /** 
      * Private 
     */
 
+    _setupPlayerControls(){
+
+    } 
+    _keyDownHandler(e) {
+        switch (e.keyCode) {
+            case 37:
+                this._playerControls.turnLeft = true;
+                break;
+            case 39:
+                this._playerControls.turnRight = true;
+                break;
+        }
+    }
+
+    _keyUpHandler() {
+        this._playerControls.turnLeft = false;
+        this._playerControls.turnRight = false;
+
+    }
 }

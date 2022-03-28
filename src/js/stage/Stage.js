@@ -12,6 +12,7 @@ import Lights from './stageEntities/Lights';
 import Road from './stageEntities/Road';
 import SkyBox from './stageEntities/SkyBox';
 import Clouds from './stageEntities/Clouds';
+import Ennemies from './stageEntities/Ennemies';
 import Player from './stageEntities/Player';
 
 //utils
@@ -62,7 +63,8 @@ class Stage {
             lights: new Lights(),
             road: new Road(),
             skyBox: new SkyBox(),
-            // clouds: new Clouds(),
+            clouds: new Clouds(),
+            ennemies: new Ennemies(),
             player: new Player(),
         };
         for (let model in this.sceneEntities) {
