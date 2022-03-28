@@ -16,6 +16,9 @@ export default class Humans extends Object3D{
         this.is3dModel = true;
         this._timeUpdate = 0;
         this._model = AssetsManager.models.Player;
+        this._options = {
+            playerSpeed: 0.1,
+        }; 
     }
 
 
@@ -24,15 +27,21 @@ export default class Humans extends Object3D{
     */
 
     build() {
-        this._model.animationComponent.playAnimation({animation: 'Run', loop: true});
+        this._model.animationComponent.playAnimation({animation: 'Run', loop: true, speed: this._options.playerSpeed * 10});
+        this._playerModel = this._model.scene;
+        
+        AppManager.PLAYER = this._playerModel;
 
-        this.add( this._model.scene);
+        this.add( this._playerModel);
     }
 
     update(delta) {
         this._timeUpdate += 0.02;
+        this._playerModel.position.z += this._options.playerSpeed;
+        AppManager.CAMERA.lookAt(this._model.scene.position);
+        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 10});
+
         // this._modelTalk.scene.getObjectByName("Human").material.uniforms.uTime.value = this._timeUpdate;
-        // this._modelTalk.scene.getObjectByName("Human").material.uniforms.uTimeCos.value = Math.cos(this._timeNoiseUpdate) * 5;
     }
 
     /** 

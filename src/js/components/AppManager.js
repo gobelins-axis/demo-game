@@ -76,6 +76,14 @@ class AppManager{
     get SOUND_MANAGER() {
         return this._soundManager;
     }
+
+    get PLAYER() {
+        return this._player;
+    }
+
+    set PLAYER(value) {
+        this._player = value;
+    }
     /** 
      * Public 
     */
@@ -87,7 +95,7 @@ class AppManager{
         this._soundManager =  this._setupSoundManager();
         this._renderPass = this._setupRenderPass();
 
-        this._setupOrbitControls();
+        // this._setupOrbitControls();
 
         if(this.STATUS.isDebug) {
             this._setupStats();

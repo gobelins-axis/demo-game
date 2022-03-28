@@ -62,7 +62,7 @@ class Stage {
             lights: new Lights(),
             road: new Road(),
             skyBox: new SkyBox(),
-            clouds: new Clouds(),
+            // clouds: new Clouds(),
             player: new Player(),
         };
         for (let model in this.sceneEntities) {
