@@ -30,7 +30,10 @@ export default class Humans extends Object3D{
 
         window.__arcadeFeu.registerKey('a', 'ArrowLeft');
         window.__arcadeFeu.registerKey('b', 'ArrowRight');
-    
+        console.log("window.__arcadeFeu", window.__arcadeFeu);
+        window.__arcadeFeu.ipcRenderer.on("keydown", () => {
+            console.log("onKeyDown IPC");
+        });
         window.__arcadeFeu.addEventListener("keydown", (e) => {
             if(e.machineKey === "a"){
                 this._playerControls.turnLeft = true;
