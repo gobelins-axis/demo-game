@@ -28,8 +28,24 @@ export default class Humans extends Object3D{
         }; 
 
 
-        window.addEventListener("keydown", (e) => this._keyDownHandler(e) );
-        window.addEventListener("keyup", (e) => this._keyUpHandler(e) );
+        window.__arcadeFeu.registerKey('a', 'ArrowLeft');
+        window.__arcadeFeu.registerKey('b', 'ArrowRight');
+    
+        window.__arcadeFeu.addEventListener("keydown", (e) => {
+            if(e.machineKey === "a"){
+                this._playerControls.turnLeft = true;
+            }else {
+                this._playerControls.turnRight = true;
+            }
+        });
+        
+        window.__arcadeFeu.addEventListener("keyup", (e) => {
+            this._playerControls.turnLeft = false;
+            this._playerControls.turnRight = false;
+        });
+        
+        // window.addEventListener("keydown", (e) => this._keyDownHandler(e) );
+        // window.addEventListener("keyup", (e) => this._keyUpHandler(e) );
     }
 
 
