@@ -47,6 +47,7 @@
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
+    "arcade-api": "github:arcade-feu/arcade-api",
     "glslify-loader": "^2.0.0",
     "gsap": "^3.9.1",
     "raw-loader": "^4.0.2",

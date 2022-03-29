@@ -9,6 +9,7 @@ import fragmentShader from '../../shaders/CustomBasicMaterial/fragment.glsl';
 
 import Tools from '../../utils/Tools';
 import gsap from 'gsap';
+import Arcade from 'arcade-api';
 
 export default class Humans extends Object3D{
     constructor(options) {
@@ -25,7 +26,7 @@ export default class Humans extends Object3D{
         this._playerControls = {
             turnLeft: false,
             turnRight: false,
-        }; 
+        };
 
         this._setupPlayerControls();
 
@@ -52,17 +53,9 @@ export default class Humans extends Object3D{
         gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, onUpdate: () => {
             AppManager.CAMERA.lookAt(this._model.scene.position);
         }});
-        
-        
-        if(this._playerControls.turnLeft) {
-            this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += 0.3, -4.5, 4.5);
-        }
-        if(this._playerControls.turnRight) {
-            this._playerModel.position.x = Tools.clamp(this._playerModel.position.x -= 0.3, -4.5, 4.5);
-        }
 
-        this._playerControls.turnLeft = false;
-        this._playerControls.turnRight = false;
+        // this._playerControls.turnLeft = false;
+        // this._playerControls.turnRight = false;
         
     }
 
@@ -71,15 +64,15 @@ export default class Humans extends Object3D{
     */
 
     _setupPlayerControls(){
-        window.__arcadeFeu.registerKey('a', 'ArrowLeft');
-        window.__arcadeFeu.registerKey('b', 'ArrowRight');
+        Arcade.registerKey('a', 'ArrowLeft');
+        Arcade.registerKey('b', 'ArrowRight');
 
-        window.__arcadeFeu.addEventListener("keydown", (e) => {
+        Arcade.addEventListener("keydown", (e) => {
             if(e.machineKey === "a"){
-                this._playerControls.turnLeft = true;
+                this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += 0.3, -4.5, 4.5);
             }
             if(e.machineKey === "b") {
-                this._playerControls.turnRight = true;
+                this._playerModel.position.x = Tools.clamp(this._playerModel.position.x -= 0.3, -4.5, 4.5);
             }
         });
     } 
