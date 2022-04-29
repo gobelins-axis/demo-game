@@ -14,6 +14,7 @@ import SkyBox from './stageEntities/SkyBox';
 import Clouds from './stageEntities/Clouds';
 import Ennemies from './stageEntities/Ennemies';
 import Player from './stageEntities/Player';
+import WaterFloor from './stageEntities/WaterFloor';
 
 //utils
 import Tools from "../utils/Tools";
@@ -66,6 +67,7 @@ class Stage {
             clouds: new Clouds(),
             ennemies: new Ennemies(),
             player: new Player(),
+            waterFloor: new WaterFloor(),
         };
         for (let model in this.sceneEntities) {
             this.sceneEntities[model].build(this._models);

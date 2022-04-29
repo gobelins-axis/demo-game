@@ -9,7 +9,6 @@ import fragmentShader from '../../shaders/CustomBasicMaterial/fragment.glsl';
 
 import Tools from '../../utils/Tools';
 import gsap from 'gsap';
-import Arcade from 'arcade-api';
 
 export default class Humans extends Object3D{
     constructor(options) {
@@ -17,11 +16,11 @@ export default class Humans extends Object3D{
         this.is3dModel = true;
         this._timeUpdate = 0;
         this._model = AssetsManager.models.Player;
-        this._options = {
-            playerSpeed: 0.1,
+        this._playerOptions = {
+            speed: 0,
+            direction: 0,
+            joystickAcceleration: 0,
         };
-
-        this._turnAcceleration = 0;
 
         this._playerControls = {
             turnLeft: false,
@@ -38,7 +37,7 @@ export default class Humans extends Object3D{
     */
 
     build() {
-        this._model.animationComponent.playAnimation({animation: 'Run', loop: true, speed: this._options.playerSpeed * 10});
+        this._model.animationComponent.playAnimation({animation: 'Run', loop: true, speed: this._playerOptions.speed * 10});
         this._playerModel = this._model.scene;
         
         AppManager.PLAYER = this._playerModel;
@@ -47,16 +46,16 @@ export default class Humans extends Object3D{
     }
 
     update(delta) {
-        this._timeUpdate += 0.02;
-        this._playerModel.position.z += this._options.playerSpeed;
+        this._timeUpdate += 0.002;
+        this._playerModel.position.z += this._playerOptions.speed;
 
-        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, onUpdate: () => {
+        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
             AppManager.CAMERA.lookAt(this._model.scene.position);
         }});
 
-        // this._playerControls.turnLeft = false;
-        // this._playerControls.turnRight = false;
-        
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
+        // this._playerModel.rotation.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
+        gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
     }
 
     /** 
@@ -64,16 +63,36 @@ export default class Humans extends Object3D{
     */
 
     _setupPlayerControls(){
-        Arcade.registerKey('a', 'ArrowLeft');
-        Arcade.registerKey('b', 'ArrowRight');
+        AppManager.ARCADE.registerKey('a', 'ArrowLeft');
+        AppManager.ARCADE.registerKey('b', 'ArrowRight');
 
-        Arcade.addEventListener("keydown", (e) => {
-            if(e.machineKey === "a"){
-                this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += 0.3, -4.5, 4.5);
-            }
-            if(e.machineKey === "b") {
-                this._playerModel.position.x = Tools.clamp(this._playerModel.position.x -= 0.3, -4.5, 4.5);
-            }
-        });
-    } 
+        // AppManager.ARCADE.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        // AppManager.ARCADE.addEventListener("keyup", () => {
+        //     this._turnAcceleration = 0;
+        // });
+
+        AppManager.ARCADE.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
+    }
+    _keyDownHandler(e) {
+        if(e.machineKey === "a"){
+            // this._turnAcceleration = 0.2;
+        }
+        if(e.machineKey === "b") {
+            // this._turnAcceleration = -0.2;
+        }
+        //     const speed = 50;
+        //     const direction = e.machineKey === "a" ? -1 : 1;
+        //     position.x += speed * direction;
+    }
+
+    _joystickMoveHandler(e) {
+        if(e.id === 1) {
+            this._playerOptions.speed = e.position.x * 0.2;
+            this._playerOptions.direction = e.position.y * 0.2;
+        } 
+        if(e.id === 2) {
+            // AppManager.CAMERA.lookAt(e.position.y, e.position.x, 0);
+        }
+        // this._playerPosition.x += speed * e.x;
+    }
 }

@@ -9,6 +9,9 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
 
+import Arcade from 'arcade-api';
+// import Arcade from '../../../../arcade-api/build/bundle';
+
 const DEBUG = true; 
 const FPS = 60; 
 
@@ -79,6 +82,10 @@ class AppManager{
 
     get PLAYER() {
         return this._player;
+    }
+
+    get ARCADE() {
+        return Arcade;
     }
 
     set PLAYER(value) {
