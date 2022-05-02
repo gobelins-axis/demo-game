@@ -86,11 +86,11 @@ export default class Humans extends Object3D{
     }
 
     _joystickMoveHandler(e) {
-        if(e.id === 1) {
+        if(e.joystickId === 1) {
             this._playerOptions.speed = e.position.x * 0.2;
             this._playerOptions.direction = e.position.y * 0.2;
         } 
-        if(e.id === 2) {
+        if(e.joystickId === 2) {
             // AppManager.CAMERA.lookAt(e.position.y, e.position.x, 0);
         }
         // this._playerPosition.x += speed * e.x;
