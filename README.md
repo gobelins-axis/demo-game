@@ -1,1 +1,1 @@
-# 👾 Demo Game for our Arcade Machine
+# 👾 Demo Game for our Axis Machine

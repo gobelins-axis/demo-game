@@ -9,8 +9,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
 
-import Arcade from 'arcade-api';
-// import Arcade from '../../../../arcade-api/build/bundle';
+import Axis from 'axis-api';
 
 const DEBUG = true; 
 const FPS = 60; 
@@ -84,8 +83,8 @@ class AppManager{
         return this._player;
     }
 
-    get ARCADE() {
-        return Arcade;
+    get AXIS() {
+        return Axis;
     }
 
     set PLAYER(value) {

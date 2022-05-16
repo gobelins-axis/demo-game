@@ -63,15 +63,15 @@ export default class Humans extends Object3D{
     */
 
     _setupPlayerControls(){
-        AppManager.ARCADE.registerKey('a', 'ArrowLeft');
-        AppManager.ARCADE.registerKey('b', 'ArrowRight');
+        AppManager.AXIS.registerKey('a', 'ArrowLeft');
+        AppManager.AXIS.registerKey('b', 'ArrowRight');
 
-        // AppManager.ARCADE.addEventListener("keydown", (e) => this._keyDownHandler(e));
-        // AppManager.ARCADE.addEventListener("keyup", () => {
+        // AppManager.AXIS.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        // AppManager.AXIS.addEventListener("keyup", () => {
         //     this._turnAcceleration = 0;
         // });
 
-        AppManager.ARCADE.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
+        AppManager.AXIS.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
     _keyDownHandler(e) {
         if(e.machineKey === "a"){

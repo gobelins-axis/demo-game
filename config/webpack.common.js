@@ -54,7 +54,7 @@ module.exports = {
      * Generates an HTML file from a template.
      */
         new HtmlWebpackPlugin({
-            title: 'Demo Game Arcade Feu',
+            title: 'Demo Game Axis',
             template: paths.src + '/index.html', // template file
             filename: 'index.html', // output file
         }),
