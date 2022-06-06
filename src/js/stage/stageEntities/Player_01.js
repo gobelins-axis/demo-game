@@ -10,7 +10,7 @@ import fragmentShader from '../../shaders/CustomBasicMaterial/fragment.glsl';
 import Tools from '../../utils/Tools';
 import gsap from 'gsap';
 
-export default class Humans extends Object3D{
+export default class Player_01 extends Object3D{
     constructor(options) {
         super();
         this.is3dModel = true;
@@ -40,7 +40,7 @@ export default class Humans extends Object3D{
         this._model.animationComponent.playAnimation({animation: 'Run', loop: true, speed: this._playerOptions.speed * 10});
         this._playerModel = this._model.scene;
         
-        AppManager.PLAYER = this._playerModel;
+        AppManager.PLAYER_01 = this._playerModel;
 
         this.add(this._playerModel);
     }
@@ -62,27 +62,35 @@ export default class Humans extends Object3D{
      * Private 
     */
 
+   
     _setupPlayerControls(){
-        // AppManager.AXIS.registerKey('a', 'ArrowLeft');
-        // AppManager.AXIS.registerKey('b', 'ArrowRight');
+        AppManager.AXIS.registerKeys("ArrowLeft", "a", 1);
+        AppManager.AXIS.registerKeys("ArrowRight", "b", 1);
+        // AppManager.AXIS.registerKeys("e", "c", 1);
+        // AppManager.AXIS.registerKeys("r", "d", 1);
 
-        // AppManager.AXIS.addEventListener("keydown", (e) => this._keyDownHandler(e));
-        // AppManager.AXIS.addEventListener("keyup", () => {
-        //     this._turnAcceleration = 0;
-        // });
+        const player1 = AppManager.AXIS.createPlayer({
+            id: 1,
+            joystick: AppManager.AXIS.joystick1,
+            buttons: AppManager.AXIS.buttonManager.getButtonsById(1),
+        });
 
-        // AppManager.AXIS.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
+
+        player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
     }
+
     _keyDownHandler(e) {
-        if(e.machineKey === "a"){
-            // this._turnAcceleration = 0.2;
+        if(e.key === "a") {
+            this._playerOptions.direction = 0.2;
         }
-        if(e.machineKey === "b") {
-            // this._turnAcceleration = -0.2;
+        if(e.key === "b") {
+            this._playerOptions.direction = -0.2;
         }
-        //     const speed = 50;
-        //     const direction = e.machineKey === "a" ? -1 : 1;
-        //     position.x += speed * direction;
+    }
+
+    _keyUpHandler() {
+        this._playerOptions.direction = 0;
     }
 
     _joystickMoveHandler(e) {

@@ -34,7 +34,7 @@ export default class Road extends Object3D{
     }
 
     update(delta) {
-        this._checkRoadReplace();
+        // this._checkRoadReplace();
     }
 
     /** 

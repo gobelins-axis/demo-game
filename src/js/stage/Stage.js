@@ -12,8 +12,8 @@ import Lights from './stageEntities/Lights';
 import Road from './stageEntities/Road';
 import SkyBox from './stageEntities/SkyBox';
 import Clouds from './stageEntities/Clouds';
-import Ennemies from './stageEntities/Ennemies';
-import Player from './stageEntities/Player';
+import Player_02 from './stageEntities/Player_02';
+import Player_01 from './stageEntities/Player_01';
 import WaterFloor from './stageEntities/WaterFloor';
 
 //utils
@@ -61,12 +61,13 @@ class Stage {
 
     _createEntities() {
         this.sceneEntities = {
-            // lights: new Lights(),
+            lights: new Lights(),
             road: new Road(),
             skyBox: new SkyBox(),
             // clouds: new Clouds(),
-            // ennemies: new Ennemies(),
-            player: new Player(),
+            // projectiles: new Projectiles(),
+            player_01: new Player_01(),
+            player_02: new Player_02(),
             waterFloor: new WaterFloor(),
         };
         for (let model in this.sceneEntities) {

@@ -84,9 +84,13 @@ class AnimationComponent {
     }
 
     animFade(options) {
+        if (!options.loop) {
+            this.actionType[options.to].loop = THREE.LoopOnce;
+            this.actionType[options.to].clampWhenFinished = true;
+        }
         this.unPauseAllActions();
         this._setWeight(this.actionType[options.to], 1);
-        this.actionType[options.to].time = 0;
+        this.actionType[options.to].time = options.delay ? options.delay : 0;
         this.actionType[options.from].crossFadeTo(this.actionType[options.to], options.duration ? options.duration : 1, true);
         this.playAnimation({animation: options.to, loop: options.loop, speed: options.speed});
     }

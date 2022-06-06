@@ -32,7 +32,7 @@ export default class Lights extends Object3D{
     }
 
     _addToScene() {
-        this.add(this._aLight, this._dLight);
+        this.add(this._aLight);
     }
 
     update(delta) {

@@ -35,7 +35,7 @@ class SoundManager{
 
     _createSoundListener() {
         const listener = new THREE.AudioListener();
-        AppManager.CAMERA.add( listener );
+        AppManager.MAIN_CAMERA.add( listener );
         return listener;
     }
     

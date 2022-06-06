@@ -59,8 +59,16 @@ class AppManager{
         return this._renderTargetScene;
     }
 
-    get CAMERA() {
+    get MAIN_CAMERA(){
+        return this._mainCamera;
+    } 
+
+    get CAMERA_LEFT() {
         return this._leftCamera;
+    }
+
+    get CAMERA_RIGHT() {
+        return this._rightCamera;
     }
 
     get STATUS() {
@@ -79,16 +87,23 @@ class AppManager{
         return this._soundManager;
     }
 
-    get PLAYER() {
-        return this._player;
+    get PLAYER_01() {
+        return this._player01;
+    }
+    
+    get PLAYER_02() {
+        return this._player02;
     }
 
     get AXIS() {
         return Axis;
     }
 
-    set PLAYER(value) {
-        this._player = value;
+    set PLAYER_01(value) {
+        this._player01 = value;
+    }
+    set PLAYER_02(value) {
+        this._player02 = value;
     }
     /** 
      * Public 
@@ -109,7 +124,7 @@ class AppManager{
         
         this._plane = this._setupPlane();
 
-        this._soundManager =  this._setupSoundManager();
+        // this._soundManager =  this._setupSoundManager();
         this._renderPass = this._setupRenderPass();
 
         this._setupOrbitControls();
@@ -149,10 +164,10 @@ class AppManager{
 
         this._resizeMainCamera(this._width, this._height);
 
-        this._leftCamera.aspect =  this._width /  this._height;
+        this._leftCamera.aspect =  (this._width / 2) /  this._height;
         this._leftCamera.updateProjectionMatrix();
 
-        this._rightCamera.aspect =  this._width /  this._height;
+        this._rightCamera.aspect = (this._width / 2) / this._height;
         this._rightCamera.updateProjectionMatrix();
         
         this._renderer.setSize(this._width, this._height);
@@ -193,7 +208,7 @@ class AppManager{
             // antialias: true,
             // alpha: true,
             // sortObjects: false,
-            // logarithmicDepthBuffer: true,
+            logarithmicDepthBuffer: true,
         });
         renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -223,12 +238,9 @@ class AppManager{
         const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
 
         camera.position.x = 0;
-        camera.position.y = 10;
+        camera.position.y = 4;
         camera.position.z = -10;
         camera.lookAt(0, 0, 0);
-
-        this._defaultCameraPosition = new THREE.Vector3();
-        this._defaultCameraPosition.copy(camera.position);
         return camera;
     }
     
@@ -236,11 +248,10 @@ class AppManager{
         const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
 
         camera.position.x = 0;
-        camera.position.y = 10;
+        camera.position.y = 4;
         camera.position.z = 100;
         camera.lookAt(0, 0, 0);
-        this._defaultCameraPosition = new THREE.Vector3();
-        this._defaultCameraPosition.copy(camera.position);
+
         return camera;
     }
 
@@ -248,6 +259,7 @@ class AppManager{
         const rtWidth = window.innerWidth / 2;
         const rtHeight = window.innerHeight;
         const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+        renderTarget.samples = 1;
         return renderTarget;
     }
 
@@ -283,8 +295,8 @@ class AppManager{
                 varying vec2 vUv;
 
                 void main() {
-                    vec4 texelLeft = texture2D(uTextureLeft, vUv);
-                    vec4 texelRight = texture2D(uTextureRight, vUv);
+                    vec4 texelLeft = texture2D(uTextureLeft, vec2(vUv.x * 2., vUv.y));
+                    vec4 texelRight = texture2D(uTextureRight, vec2((1. - vUv.x) * 2., vUv.y));
 
                     gl_FragColor = mix(texelLeft, texelRight, 1.0 - step(vUv.x, 0.5));
                 }
@@ -435,7 +447,7 @@ class AppManager{
     }
     
     _setupOrbitControls() {
-        this._controls = new OrbitControls(this._leftCamera, this._canvas);
+        this._controls = new OrbitControls(this._rightCamera, this._canvas);
         this._controls.update();
         // this._controls.enableDamping = true;
         // this._controls.enabled = this.STATUS.isDebug;
