@@ -56,7 +56,7 @@ class AppManager{
     }
 
     get SCENE() {
-        return this._scene;
+        return this._renderTargetScene;
     }
 
     get CAMERA() {
@@ -96,23 +96,30 @@ class AppManager{
 
     setup() {
         this._renderer =  this._setupRenderer();
-        this._scene =  this._setupScene();
+
+        this._mainScene =  this._setupMainScene();
+        this._renderTargetScene = this._setupRenderTargetScene();
+
+        this._mainCamera = this._setupMainCamera();
         this._leftCamera =  this._setupLeftCamera();
         this._rightCamera =  this._setupRightCamera();
-        this._soundManager =  this._setupSoundManager();
-        this._renderPass = this._setupRenderPass();
+
         this._leftRenderTarget = this._setupRenderTarget();
         this._rightRenderTarget = this._setupRenderTarget();
+        
+        this._plane = this._setupPlane();
+
+        this._soundManager =  this._setupSoundManager();
+        this._renderPass = this._setupRenderPass();
 
         this._setupOrbitControls();
 
-        if(this.STATUS.isDebug) {
-            this._setupStats();
-        }
+        if(this.STATUS.isDebug) this._setupStats();
         
+        this._stage = this._setupStage();
+
         this.resize();
 
-        this._stage = this._setupStage();
         this._setupEventListeners();
 
         this.STATUS.isReady = true;
@@ -125,7 +132,7 @@ class AppManager{
     start() {
         this.STATUS.isStarted = true;
 
-        this.stage.onStartStage();
+        this._stage?.onStartStage();
     }
 
     pause(paused) {
@@ -140,9 +147,7 @@ class AppManager{
         this._canvas.width = this._width;
         this._canvas.height = this._height;
 
-        if(this.stage) {
-            this.stage.onResizeStage(this._width, this._height);
-        }
+        this._resizeMainCamera(this._width, this._height);
 
         this._leftCamera.aspect =  this._width /  this._height;
         this._leftCamera.updateProjectionMatrix();
@@ -150,7 +155,10 @@ class AppManager{
         this._rightCamera.aspect =  this._width /  this._height;
         this._rightCamera.updateProjectionMatrix();
         
-        this._renderer.setSize( this._width,  this._height);
+        this._renderer.setSize(this._width, this._height);
+        this._resizeRenderTargets(this._width, this._height);
+
+        this._stage?.onResizeStage(this._width, this._height);
     }
 
     reset() {
@@ -171,7 +179,7 @@ class AppManager{
     */
    
     _setupStage() {
-        this.stage = new Stage();
+        return new Stage();
     }
     
     _setupSoundManager() {
@@ -186,7 +194,6 @@ class AppManager{
             // alpha: true,
             // sortObjects: false,
             // logarithmicDepthBuffer: true,
-            
         });
         renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -196,13 +203,20 @@ class AppManager{
         return renderer;
     }
 
-    _setupScene() {
-        const scene = new THREE.Scene();  
-
-        const near = 10;
-        const far = 130;
-        // scene.fog = new THREE.Fog(APPManager.RANDOM_COLOR, near, far);
+    _setupMainScene() {
+        const scene = new THREE.Scene();
         return scene;
+    }
+
+    _setupRenderTargetScene() {
+        const renderTargetScene = new THREE.Scene();
+        return renderTargetScene;
+    }
+
+    _setupMainCamera() {
+        const camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 1000);
+        camera.position.z = 1;
+        return camera;
     }
 
     _setupLeftCamera() {
@@ -215,7 +229,6 @@ class AppManager{
 
         this._defaultCameraPosition = new THREE.Vector3();
         this._defaultCameraPosition.copy(camera.position);
-        // this._leftCamera.lookAt(-100, 0, 20);
         return camera;
     }
     
@@ -228,8 +241,59 @@ class AppManager{
         camera.lookAt(0, 0, 0);
         this._defaultCameraPosition = new THREE.Vector3();
         this._defaultCameraPosition.copy(camera.position);
-        // this._leftCamera.lookAt(-100, 0, 20);
         return camera;
+    }
+
+    _setupRenderTarget() {
+        const rtWidth = window.innerWidth / 2;
+        const rtHeight = window.innerHeight;
+        const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+        return renderTarget;
+    }
+
+    _setupPlane() {
+        const geometry = new THREE.PlaneGeometry(1, 1, 1);
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                uTextureLeft: { value: this._leftRenderTarget.texture },
+                uTextureRight: { value: this._rightRenderTarget.texture },
+            },
+            vertexShader: 
+            `
+                // Varyings
+                varying vec2 vUv;
+
+                void main() {
+                    // Output
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+                    // Varyings
+                    vUv = uv;
+                }
+            `,
+            fragmentShader: 
+            `
+                // Uniforms
+                uniform float uResolution;
+                uniform sampler2D uTextureLeft;
+                uniform sampler2D uTextureRight;
+
+                // Varyings
+                varying vec2 vUv;
+
+                void main() {
+                    vec4 texelLeft = texture2D(uTextureLeft, vUv);
+                    vec4 texelRight = texture2D(uTextureRight, vUv);
+
+                    gl_FragColor = mix(texelLeft, texelRight, 1.0 - step(vUv.x, 0.5));
+                }
+            `,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.scale.set(window.innerWidth, window.innerHeight, 1);
+        this._mainScene.add(mesh);
+        return mesh;
     }
 
     _setupRenderPass() {
@@ -247,11 +311,21 @@ class AppManager{
         this._composer.addPass( filmPass );
     }
 
-    _setupRenderTarget() {
-        const rtWidth = 512;
-        const rtHeight = 512;
-        const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
-        return renderTarget;
+    _resizeMainCamera(width, height) {
+        this._mainCamera.left = width / -2;
+        this._mainCamera.right = width / 2;
+        this._mainCamera.top = height / 2;
+        this._mainCamera.bottom = height / -2;
+
+        this._mainCamera.updateProjectionMatrix();
+    }
+
+    _resizeRenderTargets(width, height) {
+        this._leftRenderTarget.width = width / 2;
+        this._leftRenderTarget.height = height;
+
+        this._rightRenderTarget.width = width / 2;
+        this._rightRenderTarget.height = height;
     }
 
     _setupEventListeners() {
@@ -272,18 +346,32 @@ class AppManager{
         this.delta = this._clock.getDelta();
 
         this.stats.begin();
-        this.stage.onTick();
+        this._stage?.onTick();
 
-        this._renderer.render(this._scene, this._leftCamera);
+        this._renderer.render(this._mainScene, this._mainCamera);
         this.stats.end();
     }
 
     _tick() {
         this.delta = this._clock.getDelta();
 
-        this.stage.onTick();
+        this._stage?.onTick();
         // this._controls.update();
-        this._renderer.render( this._scene, this._leftCamera );
+
+        // Left
+        this._renderer.setRenderTarget(this._leftRenderTarget);
+        this._renderer.render(this._renderTargetScene, this._leftCamera);
+
+        // Right
+        this._renderer.setRenderTarget(this._rightRenderTarget);
+        this._renderer.render(this._renderTargetScene, this._rightCamera);
+
+        // Final
+        this._renderer.setRenderTarget(null);
+        this._renderer.render(this._mainScene, this._mainCamera);
+
+        this._plane.material.uniforms.uTextureLeft.value = this._leftRenderTarget.texture;
+        this._plane.material.uniforms.uTextureRight.value = this._rightRenderTarget.texture;
     }
 
     /** 

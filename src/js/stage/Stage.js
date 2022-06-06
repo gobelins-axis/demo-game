@@ -61,7 +61,7 @@ class Stage {
 
     _createEntities() {
         this.sceneEntities = {
-            lights: new Lights(),
+            // lights: new Lights(),
             road: new Road(),
             skyBox: new SkyBox(),
             // clouds: new Clouds(),
