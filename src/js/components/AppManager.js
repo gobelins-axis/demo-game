@@ -11,7 +11,7 @@ import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass
 
 import Axis from 'axis-api';
 
-const DEBUG = true; 
+const DEBUG = false; 
 const FPS = 60; 
 
 class AppManager{
@@ -60,7 +60,7 @@ class AppManager{
     }
 
     get CAMERA() {
-        return this._camera;
+        return this._leftCamera;
     }
 
     get STATUS() {
@@ -97,11 +97,14 @@ class AppManager{
     setup() {
         this._renderer =  this._setupRenderer();
         this._scene =  this._setupScene();
-        this._camera =  this._setupCamera();
+        this._leftCamera =  this._setupLeftCamera();
+        this._rightCamera =  this._setupRightCamera();
         this._soundManager =  this._setupSoundManager();
         this._renderPass = this._setupRenderPass();
+        this._leftRenderTarget = this._setupRenderTarget();
+        this._rightRenderTarget = this._setupRenderTarget();
 
-        // this._setupOrbitControls();
+        this._setupOrbitControls();
 
         if(this.STATUS.isDebug) {
             this._setupStats();
@@ -141,8 +144,12 @@ class AppManager{
             this.stage.onResizeStage(this._width, this._height);
         }
 
-        this._camera.aspect =  this._width /  this._height;
-        this._camera.updateProjectionMatrix();
+        this._leftCamera.aspect =  this._width /  this._height;
+        this._leftCamera.updateProjectionMatrix();
+
+        this._rightCamera.aspect =  this._width /  this._height;
+        this._rightCamera.updateProjectionMatrix();
+        
         this._renderer.setSize( this._width,  this._height);
     }
 
@@ -177,11 +184,11 @@ class AppManager{
             canvas: this._canvas,
             // antialias: true,
             // alpha: true,
-            sortObjects: false,
+            // sortObjects: false,
             // logarithmicDepthBuffer: true,
             
         });
-        // renderer.shadowMap.enabled = true;
+        renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this._composer = new EffectComposer( renderer );
         this._composer.setSize(window.innerWidth, window.innerHeight);
@@ -198,20 +205,35 @@ class AppManager{
         return scene;
     }
 
-    _setupCamera() {
+    _setupLeftCamera() {
         const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
 
-        camera.position.x = 10;
+        camera.position.x = 0;
         camera.position.y = 10;
-        camera.position.z = 10;
+        camera.position.z = -10;
+        camera.lookAt(0, 0, 0);
+
         this._defaultCameraPosition = new THREE.Vector3();
         this._defaultCameraPosition.copy(camera.position);
-        // this._camera.lookAt(-100, 0, 20);
+        // this._leftCamera.lookAt(-100, 0, 20);
+        return camera;
+    }
+    
+    _setupRightCamera() {
+        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
+
+        camera.position.x = 0;
+        camera.position.y = 10;
+        camera.position.z = 100;
+        camera.lookAt(0, 0, 0);
+        this._defaultCameraPosition = new THREE.Vector3();
+        this._defaultCameraPosition.copy(camera.position);
+        // this._leftCamera.lookAt(-100, 0, 20);
         return camera;
     }
 
     _setupRenderPass() {
-        const renderPass = new RenderPass( this._scene, this._camera );
+        const renderPass = new RenderPass( this._scene, this._leftCamera );
         const afterimagePass = new AfterimagePass();
         this._composer.addPass( renderPass );
         this._composer.addPass( afterimagePass );
@@ -223,6 +245,13 @@ class AppManager{
         );
         filmPass.renderToScreen = true;
         this._composer.addPass( filmPass );
+    }
+
+    _setupRenderTarget() {
+        const rtWidth = 512;
+        const rtHeight = 512;
+        const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+        return renderTarget;
     }
 
     _setupEventListeners() {
@@ -245,7 +274,7 @@ class AppManager{
         this.stats.begin();
         this.stage.onTick();
 
-        this._renderer.render(this._scene, this._camera);
+        this._renderer.render(this._scene, this._leftCamera);
         this.stats.end();
     }
 
@@ -254,10 +283,7 @@ class AppManager{
 
         this.stage.onTick();
         // this._controls.update();
-        
-        // this._composer.render();
-        this._renderer.render(this._scene, this._camera);
-
+        this._renderer.render( this._scene, this._leftCamera );
     }
 
     /** 
@@ -310,15 +336,6 @@ class AppManager{
         this._eventDispatcher.dispatchEvent({ type: "touchEnd", data: this._touchValues });
     }
 
-    _onScrollHandler() {
-        this._scrollPercent = 0;
-
-        //calculate the current scroll progress as a percentage
-        this._scrollPercent = ((document.documentElement.scrollTop || document.body.scrollTop) / ((document.documentElement.scrollHeight || document.body.scrollHeight) - document.documentElement.clientHeight)) * 100;
-        this._eventDispatcher.dispatchEvent({ type: "onScroll", data: this._scrollPercent});
-        console.log(this._scrollPercent);
-    }
-
     /** 
      * Debug 
     */
@@ -330,7 +347,7 @@ class AppManager{
     }
     
     _setupOrbitControls() {
-        this._controls = new OrbitControls(this._camera, this._canvas);
+        this._controls = new OrbitControls(this._leftCamera, this._canvas);
         this._controls.update();
         // this._controls.enableDamping = true;
         // this._controls.enabled = this.STATUS.isDebug;

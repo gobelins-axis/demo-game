@@ -26,7 +26,7 @@ class Stage {
     constructor() {
         this._createEntities();
     
-        AppManager.CAMERA.lookAt(0, 1, 0);
+        // AppManager.CAMERA.lookAt(0, 1, 0);
     }
 
     /** 
@@ -64,8 +64,8 @@ class Stage {
             lights: new Lights(),
             road: new Road(),
             skyBox: new SkyBox(),
-            clouds: new Clouds(),
-            ennemies: new Ennemies(),
+            // clouds: new Clouds(),
+            // ennemies: new Ennemies(),
             player: new Player(),
             waterFloor: new WaterFloor(),
         };

@@ -49,9 +49,9 @@ export default class Humans extends Object3D{
         this._timeUpdate += 0.002;
         this._playerModel.position.z += this._playerOptions.speed;
 
-        gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
-            AppManager.CAMERA.lookAt(this._model.scene.position);
-        }});
+        // gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
+        // AppManager.CAMERA.lookAt(this._model.scene.position);
+        // }});
 
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
         // this._playerModel.rotation.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
@@ -63,15 +63,15 @@ export default class Humans extends Object3D{
     */
 
     _setupPlayerControls(){
-        AppManager.AXIS.registerKey('a', 'ArrowLeft');
-        AppManager.AXIS.registerKey('b', 'ArrowRight');
+        // AppManager.AXIS.registerKey('a', 'ArrowLeft');
+        // AppManager.AXIS.registerKey('b', 'ArrowRight');
 
         // AppManager.AXIS.addEventListener("keydown", (e) => this._keyDownHandler(e));
         // AppManager.AXIS.addEventListener("keyup", () => {
         //     this._turnAcceleration = 0;
         // });
 
-        AppManager.AXIS.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
+        // AppManager.AXIS.addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
     _keyDownHandler(e) {
         if(e.machineKey === "a"){
