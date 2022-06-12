@@ -127,7 +127,7 @@ class AppManager{
         // this._soundManager =  this._setupSoundManager();
         this._renderPass = this._setupRenderPass();
 
-        this._setupOrbitControls();
+        // this._setupOrbitControls();
 
         if(this.STATUS.isDebug) this._setupStats();
         

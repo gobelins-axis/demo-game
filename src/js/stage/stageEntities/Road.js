@@ -12,7 +12,7 @@ export default class Road extends Object3D{
         this.is3dModel = true;
         this._roadOptions = {
             roadSize: 19,
-            numberOfRoads: 20,
+            numberOfRoads: 15,
             roadOffset: 0,
         };
 

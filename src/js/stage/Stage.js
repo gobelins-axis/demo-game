@@ -10,6 +10,7 @@ import GPUParticles from '../components/GPUParticles';
 //sceneEntities
 import Lights from './stageEntities/Lights';
 import Road from './stageEntities/Road';
+import World from './stageEntities/World';
 import SkyBox from './stageEntities/SkyBox';
 import Clouds from './stageEntities/Clouds';
 import Player_02 from './stageEntities/Player_02';
@@ -53,6 +54,16 @@ class Stage {
         for (let entity in this.sceneEntities) {
             this.sceneEntities[entity].update(AppManager.DELTA_TIME, AppManager.STATUS.isReady);
         }   
+        for (let index = 0; index < this.sceneEntities.player_02.projectilesQueue.length; index++) {
+            const element = this.sceneEntities.player_02.projectilesQueue[index];
+            if(this.sceneEntities.player_01.playerBox.intersectsBox(element.userData.boundingBox) && !this.sceneEntities.player_01.isCollide) {
+                this.sceneEntities.player_02.projectilesManager.resetProjectile(this.sceneEntities.player_02.projectilesQueue[index]);
+                this.sceneEntities.player_01.isCollide = true;
+                setTimeout(() => {
+                    this.sceneEntities.player_01.isCollide = false;
+                }, 10);
+            };
+        }
     }
 
     /** 
@@ -63,12 +74,13 @@ class Stage {
         this.sceneEntities = {
             lights: new Lights(),
             road: new Road(),
+            world: new World(),
             skyBox: new SkyBox(),
             // clouds: new Clouds(),
             // projectiles: new Projectiles(),
             player_01: new Player_01(),
             player_02: new Player_02(),
-            waterFloor: new WaterFloor(),
+            // waterFloor: new WaterFloor(),
         };
         for (let model in this.sceneEntities) {
             this.sceneEntities[model].build(this._models);

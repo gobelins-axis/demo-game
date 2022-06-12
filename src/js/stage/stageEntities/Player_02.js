@@ -31,49 +31,55 @@ export default class Player_02 extends Object3D{
         this._meshes = [];
 
         this._setupEnnemyControls();
+        this._setupPlayerBoundingBox();
 
 
     }
 
 
+    get projectilesQueue(){
+        return this._projectilesManager.projectilesQueue;
+    } 
+
+    get projectilesManager(){
+        return this._projectilesManager;
+    } 
     /** 
      * Public 
     */
 
     build() {
-        this._ennemyModel = this._model.scene;
-        this._ennemyModel.position.z = 200;
-        this._ennemyModel.rotation.y = Math.PI;
-        this._ennemyModel.scale.set(0.6, 0.6, 0.6);
-        AppManager.PLAYER_02 = this._ennemyModel;
+        this._playerModel = this._model.scene;
+        this._playerModel.position.z = 200;
+        this._playerModel.rotation.y = Math.PI;
+        this._playerModel.scale.set(0.6, 0.6, 0.6);
+        AppManager.PLAYER_02 = this._playerModel;
         
-        AppManager.CAMERA_RIGHT.position.x = this._ennemyModel.position.x;
+        AppManager.CAMERA_RIGHT.position.x = this._playerModel.position.x;
         AppManager.CAMERA_RIGHT.position.y = 2;
-        AppManager.CAMERA_RIGHT.position.z = this._ennemyModel.position.z + 5;
-        // AppManager.CAMERA_RIGHT.lookAt(this._ennemyModel.position);
+        AppManager.CAMERA_RIGHT.position.z = this._playerModel.position.z + 5;
+        // AppManager.CAMERA_RIGHT.lookAt(this._playerModel.position);
         this._projectilesManager = new ProjectilesManager();
 
         this._model.animationComponent.playAnimation({animation: 'Idle', loop: true, speed: 1});
 
-        this.add(this._ennemyModel, this._projectilesManager);
+        this.add(this._playerModel, this._projectilesManager);
     }
 
     update(delta) {
         this._projectilesManager.update();
         this._timeUpdate += 0.002;
-        this._ennemyModel.position.z += this._ennemyOptions.speed;
+        this._playerModel.position.z += this._ennemyOptions.speed;
 
-        gsap.to(AppManager.CAMERA_RIGHT.position, {x: this._ennemyModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
+        gsap.to(AppManager.CAMERA_RIGHT.position, {x: this._playerModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
 
         }});
 
-        this._ennemyModel.position.x = Tools.clamp(this._ennemyModel.position.x += this._ennemyOptions.direction, -4.5, 4.5);
-
-        const gamepads = navigator.getGamepads();
-        if (gamepads[0]) AppManager.AXIS.joystick1.setGamepadJoystick(gamepads[0], 1); // First joystick of gamepad 1
-        if (gamepads[0]) AppManager.AXIS.joystick2.setGamepadJoystick(gamepads[0], 2);
-        // this._ennemyModel.rotation.y = Tools.clamp(this._ennemyOptions.direction * 3, -Math.PI /2, Math.PI /2);
-        // gsap.to(this._ennemyModel.rotation, {y: Tools.clamp(this._ennemyOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._ennemyOptions.direction, -4.5, 4.5);
+        
+        this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
+        // this._playerModel.rotation.y = Tools.clamp(this._ennemyOptions.direction * 3, -Math.PI /2, Math.PI /2);
+        // gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._ennemyOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
     }
 
     /** 
@@ -97,6 +103,17 @@ export default class Player_02 extends Object3D{
         player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
         AppManager.AXIS.joystick1.addEventListener("joystick:move", (e) => this._joystick1moveHandler(e));
         AppManager.AXIS.joystick2.addEventListener("joystick:move", (e) => this._joystick2moveHandler(e));
+    }
+
+    _setupPlayerBoundingBox() {
+        this._boundingBoxMin = new THREE.Vector3(-1, 0, -0.3);
+        this._boundingBoxMax = new THREE.Vector3(1, 2, 0.3 );
+        this._box = new THREE.Box3( this._boundingBoxMin, this._boundingBoxMax);
+
+        this._playerBox = new THREE.Box3().setFromObject(this._model.scene);
+
+        const helper = new THREE.Box3Helper( this._playerBox, 0xffff00 );
+        this.add( helper );
     }
 
     _keyDownHandler(e) {

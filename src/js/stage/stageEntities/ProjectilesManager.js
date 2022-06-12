@@ -16,12 +16,13 @@ export default class ProjectilesManager extends Object3D{
         this.model = AssetsManager.models.Donkey;
 
         this._projectiles = [];
+        this._projectilesQueue = [];
         this._projectilesBoxes = [];
-        this._projectilesCount = 40;
+        this._projectilesCount = 2;
         this._instanceIndex = 0;
 
-        this._boundingBoxMin = new THREE.Vector3(-1, -1, -2);
-        this._boundingBoxMax = new THREE.Vector3(1, 1, 2 );
+        this._boundingBoxMin = new THREE.Vector3(-0.3, -1, -2);
+        this._boundingBoxMax = new THREE.Vector3(0.3, 1, 2 );
         this._box = new THREE.Box3( this._boundingBoxMin, this._boundingBoxMax);
 
 
@@ -47,6 +48,10 @@ export default class ProjectilesManager extends Object3D{
         return this._projectiles;
     }
 
+    get projectilesQueue() {
+        return this._projectilesQueue;
+    }
+
     build(models) {
     }
 
@@ -58,9 +63,9 @@ export default class ProjectilesManager extends Object3D{
 
             ennemy.position.z -= 0.4 * ennemy.userData.speed;
             
-            if(  ennemy.position.z + 10 > -200) {
+            if(  ennemy.position.z < -5) {
                 // ennemy.position.z = 0;
-                // this._resetProjectile(this._projectiles[index], index);
+                this.resetProjectile(this._projectiles[index], index);
             }
         }
     }
@@ -75,7 +80,7 @@ export default class ProjectilesManager extends Object3D{
 
     _createProjectiles() {
         // this._ennemyPosZ += this._ennemyOffset;
-        const pos = new THREE.Vector3(0, 0, AppManager.PLAYER_02.position);
+        const pos = new THREE.Vector3(0, 0, AppManager.PLAYER_02.position.z);
         const scale = 0.7;
         const model = Tools.cloneGltf(this.model);
         model.scene.position.copy(pos);
@@ -84,12 +89,14 @@ export default class ProjectilesManager extends Object3D{
 
         model.scene.scale.set(1.5, 1.5, 1.5);
         model.scene.userData.speed = 0;
-
+        model.scene.visible = false;
+        
         const animationController = new AnimationComponent({ model, animations: model.animations } );
         model.scene.userData.animationController = animationController;
-
+        
         const box = new THREE.Box3().setFromObject(model.scene);
-
+        
+        model.scene.userData.boundingBox = box;
         const helper = new THREE.Box3Helper( box, 0xffff00 );
         this.add( helper );
         this._projectiles.push(model.scene);
@@ -99,24 +106,29 @@ export default class ProjectilesManager extends Object3D{
     }
 
     _startMovePlayer(object, p) {
+        this._projectilesQueue.push(object);
+
         object.userData.animationController.playAnimation({animation: "WalkHorse", loop: true, speed: 2});
         
         object.position.x = AppManager.PLAYER_02.position.x; 
         object.position.z = AppManager.PLAYER_02.position.z; 
         object.userData.speed = 2;
+        object.visible = true;
     }
 
-    _resetProjectile(ennemy, index) {
+    resetProjectile(ennemy, index) {
         setTimeout(() => {
             ennemy.position.x = 0;
             ennemy.position.y = 0;
-            ennemy.position.z = 0;
-            
-            this._projectilesBoxes[index].copy(this._box).applyMatrix4( ennemy.matrixWorld );
+            ennemy.position.z = 200;
+            ennemy.userData.boundingBox.copy(this._box).applyMatrix4( ennemy.matrixWorld );
+            // this._projectilesBoxes[index]
 
-            this._projectiles[index].userData.speed = 0;
+            ennemy.userData.speed = 0;
+            ennemy.visible = false;
         }, 1);
         this._objectPooling.add(ennemy);
+        this._projectilesQueue.shift();
     }
 
 }
