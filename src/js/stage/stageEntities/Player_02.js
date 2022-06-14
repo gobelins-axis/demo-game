@@ -55,10 +55,10 @@ export default class Player_02 extends Object3D{
         this._playerModel.scale.set(0.6, 0.6, 0.6);
         AppManager.PLAYER_02 = this._playerModel;
         
-        AppManager.CAMERA_RIGHT.position.x = this._playerModel.position.x;
-        AppManager.CAMERA_RIGHT.position.y = 2;
-        AppManager.CAMERA_RIGHT.position.z = this._playerModel.position.z + 5;
-        // AppManager.CAMERA_RIGHT.lookAt(this._playerModel.position);
+        AppManager.RIGHT_CAMERA.position.x = this._playerModel.position.x;
+        AppManager.RIGHT_CAMERA.position.y = 5;
+        AppManager.RIGHT_CAMERA.position.z = this._playerModel.position.z + 15;
+        // AppManager.RIGHT_CAMERA.lookAt(this._playerModel.position);
         this._projectilesManager = new ProjectilesManager();
 
         this._model.animationComponent.playAnimation({animation: 'Idle', loop: true, speed: 1});
@@ -71,9 +71,9 @@ export default class Player_02 extends Object3D{
         this._timeUpdate += 0.002;
         this._playerModel.position.z += this._ennemyOptions.speed;
 
-        gsap.to(AppManager.CAMERA_RIGHT.position, {x: this._playerModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
+        // gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._playerModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
 
-        }});
+        // }});
 
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._ennemyOptions.direction, -4.5, 4.5);
         

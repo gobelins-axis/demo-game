@@ -23,6 +23,7 @@ export default class Player_01 extends Object3D{
         };
 
         this._isCollide = false;
+
         this._playerControls = {
             turnLeft: false,
             turnRight: false,
@@ -62,13 +63,17 @@ export default class Player_01 extends Object3D{
         this._timeUpdate += 0.002;
         this._playerModel.position.z += this._playerOptions.speed;
 
-        // gsap.to(AppManager.CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
-        // AppManager.CAMERA.lookAt(this._model.scene.position);
-        // }});
+        gsap.to(AppManager.LEFT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
+            AppManager.LEFT_CAMERA.lookAt(this._model.scene.position);
+        }});
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
-        // this._playerModel.rotation.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
-        // gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
+        // this._playerModel.rotatio+n.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
+        gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
+    }
+
+    resetPlayerPos() {
+        this._playerModel.position.z = 0;
     }
 
     /** 
@@ -79,6 +84,8 @@ export default class Player_01 extends Object3D{
     _setupPlayerControls(){
         AppManager.AXIS.registerKeys("ArrowLeft", "a", 1);
         AppManager.AXIS.registerKeys("ArrowRight", "b", 1);
+        AppManager.AXIS.registerKeys("ArrowUp", "c", 1);
+        AppManager.AXIS.registerKeys("ArrowDown", "d", 1);
         // AppManager.AXIS.registerKeys("e", "c", 1);
         // AppManager.AXIS.registerKeys("r", "d", 1);
 
@@ -103,19 +110,30 @@ export default class Player_01 extends Object3D{
         const helper = new THREE.Box3Helper( this._playerBox, 0xffff00 );
         this.add( helper );
     }
+
+  
  
     _keyDownHandler(e) {
-        this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
+        if(this._model.animationComponent.getCurrentAnim() !== "Run") {
+            this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
+        }
         if(e.key === "a") {
             this._playerOptions.direction = 0.2;
         }
         if(e.key === "b") {
             this._playerOptions.direction = -0.2;
         }
+        if(e.key === "c") {
+            this._playerOptions.speed = 0.2;
+        }
+        if(e.key === "d") {
+            this._playerOptions.speed = -0.2;
+        }
     }
 
     _keyUpHandler() {
         this._playerOptions.direction = 0;
+        this._playerOptions.speed = 0;
         this._model.animationComponent.animFade({from:"Run", to:"Idle", loop: true, duration: 0.1, speed: 1});
 
     }

@@ -35,7 +35,7 @@ void main() {
     }
     
     lifeLeft = 1.0 - ( timeElapsed / lifeTime );
-   gl_PointSize = (size * uScale) * ( 100.0 / -mvPosition.z );// * lifeLeft;
+   gl_PointSize = (size * uScale);// * lifeLeft;
     newPosition = positionStart 
         + (velocity * timeElapsed)
         + (acceleration * 0.5 * timeElapsed * timeElapsed)

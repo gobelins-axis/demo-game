@@ -63,11 +63,11 @@ class AppManager{
         return this._mainCamera;
     } 
 
-    get CAMERA_LEFT() {
+    get LEFT_CAMERA() {
         return this._leftCamera;
     }
 
-    get CAMERA_RIGHT() {
+    get RIGHT_CAMERA() {
         return this._rightCamera;
     }
 
@@ -127,7 +127,7 @@ class AppManager{
         // this._soundManager =  this._setupSoundManager();
         this._renderPass = this._setupRenderPass();
 
-        // this._setupOrbitControls();
+        this._setupOrbitControls();
 
         if(this.STATUS.isDebug) this._setupStats();
         
@@ -208,8 +208,9 @@ class AppManager{
             // antialias: true,
             // alpha: true,
             // sortObjects: false,
-            logarithmicDepthBuffer: true,
+            // logarithmicDepthBuffer: true,
         });
+        
         renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this._composer = new EffectComposer( renderer );
@@ -225,17 +226,18 @@ class AppManager{
 
     _setupRenderTargetScene() {
         const renderTargetScene = new THREE.Scene();
+        renderTargetScene.fog = new THREE.Fog(new THREE.Color(0xfcca50), 50, 350);
         return renderTargetScene;
     }
 
     _setupMainCamera() {
-        const camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 1000);
+        const camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 2000);
         camera.position.z = 1;
         return camera;
     }
 
     _setupLeftCamera() {
-        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
+        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.1, 1000);
 
         camera.position.x = 0;
         camera.position.y = 4;
@@ -245,7 +247,7 @@ class AppManager{
     }
     
     _setupRightCamera() {
-        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.001, 500);
+        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.1, 1000);
 
         camera.position.x = 0;
         camera.position.y = 4;
@@ -259,7 +261,7 @@ class AppManager{
         const rtWidth = window.innerWidth / 2;
         const rtHeight = window.innerHeight;
         const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
-        renderTarget.samples = 1;
+        // renderTarget.samples = 1;
         return renderTarget;
     }
 
