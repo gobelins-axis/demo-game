@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import vertex from '../../shaders/water/vert.glsl';
-import fragment from '../../shaders/water/frag.glsl';
+import vertex from '../../shaders/Water/vertex.glsl';
+import fragment from '../../shaders/Water/fragment.glsl';
 import { Object3D } from 'three';
 import AppManager from '../../components/AppManager';
 import AssetsManager from '../../components/AssetsManager';

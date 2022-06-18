@@ -21,6 +21,10 @@ export default class CactusInstances extends THREE.Object3D {
             uTime: {value: 0},
             uColor: {value: new THREE.Color(0xff0000)},
             uMap: {value: AssetsManager.textures.Cactus},
+            fogFar: {value: 150},
+            fogNear: {value: 5},
+            fogColor: {value: new THREE.Color(0xfcca50)},
+            fogDensity: {value: 2},
         };
 
         let cactusModel = AssetsManager.models.Cactus.scene;
@@ -46,7 +50,7 @@ export default class CactusInstances extends THREE.Object3D {
             uniforms: uniforms,
             // transparent: true, 
             side: THREE.DoubleSide,
-
+            fog: true,
         });
         this.cactusInstance = new THREE.Mesh(instancedGeometry,  this._mat);
         this.cactusInstance.frustumCulled = false;

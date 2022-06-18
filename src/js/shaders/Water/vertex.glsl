@@ -5,14 +5,15 @@ uniform float uTimeSin;
 uniform float uTime;
 
 varying float vPos;
-
-
+#include <fog_pars_vertex>
 
 void main() {
+    #include <begin_vertex>
+    #include <project_vertex>
+    #include <fog_vertex>
     
-    vUv = uv;
 
-    vec3 transformed = vec3(position);
+    // vec3 transformed = vec3(position);
     float dx = position.x;
     float dy = position.y;
     float freq = sqrt(dx*dx + dy*dy);
@@ -22,4 +23,5 @@ void main() {
 
     vPos = transformed.z;
     gl_Position = projectionMatrix* modelViewMatrix * vec4(transformed.xyz, 1.0);
+    vUv = uv;
 }

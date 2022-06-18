@@ -4,12 +4,14 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import gsap from 'gsap';
 import SoundManager from './SoundManager';
+import UIManager from './UIManager';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
 
 import Axis from 'axis-api';
+import AssetsManager from './AssetsManager';
 
 const DEBUG = false; 
 const FPS = 60; 
@@ -125,9 +127,10 @@ class AppManager{
         this._plane = this._setupPlane();
 
         // this._soundManager =  this._setupSoundManager();
+        this._uiManager =  this._setupUIManager();
         this._renderPass = this._setupRenderPass();
 
-        this._setupOrbitControls();
+        // this._setupOrbitControls();
 
         if(this.STATUS.isDebug) this._setupStats();
         
@@ -201,6 +204,10 @@ class AppManager{
         const soundManager = new SoundManager();
         return soundManager;
     }
+    _setupUIManager() {
+        const uiManager = new UIManager();
+        return uiManager;
+    }
 
     _setupRenderer() {
         const renderer = new THREE.WebGLRenderer({
@@ -226,7 +233,9 @@ class AppManager{
 
     _setupRenderTargetScene() {
         const renderTargetScene = new THREE.Scene();
-        renderTargetScene.fog = new THREE.Fog(new THREE.Color(0xfcca50), 50, 350);
+        // renderTargetScene.background = AssetsManager.hdrTextures.background;
+        renderTargetScene.fog = new THREE.Fog(new THREE.Color(0xfcca50), 100, 150);
+
         return renderTargetScene;
     }
 
@@ -237,7 +246,7 @@ class AppManager{
     }
 
     _setupLeftCamera() {
-        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 1, 1000);
 
         camera.position.x = 0;
         camera.position.y = 4;
@@ -247,7 +256,7 @@ class AppManager{
     }
     
     _setupRightCamera() {
-        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(60, this._canvas.width / this._canvas.height, 1, 1000);
 
         camera.position.x = 0;
         camera.position.y = 4;
@@ -374,15 +383,18 @@ class AppManager{
 
         // Left
         this._renderer.setRenderTarget(this._leftRenderTarget);
+        this._renderer.clear(true, true, false);
         this._renderer.render(this._renderTargetScene, this._leftCamera);
 
         // Right
         this._renderer.setRenderTarget(this._rightRenderTarget);
+        this._renderer.clear(true, true, false);
         this._renderer.render(this._renderTargetScene, this._rightCamera);
-
+        
         // Final
         this._renderer.setRenderTarget(null);
         this._renderer.render(this._mainScene, this._mainCamera);
+
 
         this._plane.material.uniforms.uTextureLeft.value = this._leftRenderTarget.texture;
         this._plane.material.uniforms.uTextureRight.value = this._rightRenderTarget.texture;

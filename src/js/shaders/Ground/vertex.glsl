@@ -6,6 +6,7 @@ void main() {
     #include <begin_vertex>
     #include <project_vertex>
     #include <fog_vertex>
+    // vec4 transformed = vec4(position.xyz, 1.);
     
     float dx = position.x;
     float dy = position.y;

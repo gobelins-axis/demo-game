@@ -6,7 +6,11 @@ import AnimationComponent from '../../components/AnimationComponent';
 import GPUParticles from '../../components/GPUParticles';
 import Tools from '../../utils/Tools';
 import gsap from 'gsap';
+import vertexGroundShader from "../../shaders/Ground/vertex.glsl";
+import fragmentGroundShader from "../../shaders/Ground/fragment.glsl";
 
+import vertexWaterShader from "../../shaders/Water/vertex.glsl";
+import fragmentWaterShader from "../../shaders/Water/fragment.glsl";
 export default class World extends Object3D{
     constructor(options) {
         super();
@@ -14,7 +18,7 @@ export default class World extends Object3D{
 
 
         this._model = AssetsManager.models.World;
-        this._setupDustParticleSystem();
+        // this._setupDustParticleSystem();
         setInterval(() => {
             this.particlesStartTime = -1;
         }, 1000);
@@ -28,36 +32,79 @@ export default class World extends Object3D{
 
     build() {
         // this._setupRoads();
-        const trainMaterial = new THREE.MeshBasicMaterial({map: AssetsManager.textures.Train, side: THREE.DoubleSide});
-        this._trainObject = this._model.scene.getObjectByName("Locomotive");
-        this._trainObject.material = trainMaterial;
-
-        const groundMaterial = new THREE.MeshBasicMaterial({map: AssetsManager.textures.Ground, side: THREE.DoubleSide});
+        const groundMaterial = new THREE.ShaderMaterial({
+            uniforms:
+            {
+                fogFar: {value: 350},
+                fogNear: {value: 50},
+                fogColor: {value: new THREE.Color(0xfcca50)},
+                fogDensity: {value: 2},
+                uMap: {value: AssetsManager.textures.Ground},
+                uShadowMap: {value: AssetsManager.textures.GroundShadow},
+                
+            }, 
+            fog: true,
+            vertexShader: vertexGroundShader, 
+            fragmentShader: fragmentGroundShader,
+        });
         // AssetsManager.textures.Ground.repeat.set( 4, 4 );
         const groundObject = this._model.scene.getObjectByName("Ground");
         groundObject.material = groundMaterial;
 
-        const houseMaterial = new THREE.MeshBasicMaterial({map: AssetsManager.textures.House, side: THREE.DoubleSide});
-        const houseObject = this._model.scene.getObjectByName("House");
-        houseObject.material = houseMaterial;
+        const house01Material = new THREE.MeshBasicMaterial({map: AssetsManager.textures.House_01, side: THREE.DoubleSide});
+        const house01Object = this._model.scene.getObjectByName("House_01");
+        house01Object.material = house01Material;
+
+        const house02Material = new THREE.MeshBasicMaterial({map: AssetsManager.textures.House_02, side: THREE.DoubleSide});
+        const house02Object = this._model.scene.getObjectByName("House_02");
+        house02Object.material = house02Material;
+
+        const house03Material = new THREE.MeshBasicMaterial({map: AssetsManager.textures.House_03, side: THREE.DoubleSide});
+        const house03Object = this._model.scene.getObjectByName("House_03");
+        house03Object.material = house03Material;
+
+        const house04Material = new THREE.MeshBasicMaterial({map: AssetsManager.textures.House_04, side: THREE.DoubleSide});
+        const house04Object = this._model.scene.getObjectByName("House_04");
+        house04Object.material = house04Material;
+
+        const propsMaterial = new THREE.MeshBasicMaterial({map: AssetsManager.textures.Props, side: THREE.DoubleSide});
+        const propsObject = this._model.scene.getObjectByName("Props");
+        propsObject.material = propsMaterial;
+
+        let uniforms = {
+            uTimeSin: {value: 0.0},  
+            uTimeCos: {value: 0.0},
+            uTime: {value: 0.0},
+            uTex: {value: AssetsManager.textures.Water}, 
+            repeat: {value: new THREE.Vector2(2, 2)},
+            fogFar: {value: 150},
+            fogNear: {value: 5},
+            fogColor: {value: new THREE.Color(0xfcca50)},
+            fogDensity: {value: 2},
+        };
+
+        let waterMaterial = new THREE.ShaderMaterial({
+            side: THREE.DoubleSide,
+            vertexShader: vertexWaterShader,
+            fragmentShader: fragmentWaterShader,
+            uniforms,
+            fog: true,
+            
+        });
+        const waterObject = this._model.scene.getObjectByName("Water");
+        waterObject.material = waterMaterial;
 
         this.add(this._model.scene);
-        this._moveTrain();
     }
 
     update(delta) {
         // this._checkRoadReplace();
-        this.particlesSystem.update(delta);
+        // this.particlesSystem.update(delta);
     }
 
     /** 
      * Private 
     */
-
-    _moveTrain() {
-        gsap.to(this._trainObject.position, {z: 350, duration: 50, repeat: -1});
-        // gsap.to(this._trainObject.position, {z: 250, duration: 2, repeat: -1});
-    }
 
     _setupDustParticleSystem() {
         this.particlesStartTime = -2;

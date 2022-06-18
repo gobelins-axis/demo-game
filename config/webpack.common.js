@@ -97,8 +97,9 @@ module.exports = {
                 test: /\.(?:ico|gif|png|jpg|jpeg|webp|svg|mp4)$/i,
                 loader: 'url-loader',
                 options: {
-                    name: '[path][name].[ext]',
+                    name: '[name].[ext]',
                     context: 'src',
+                    outputPath: 'assets/images/',
                     // encoding: 'base64',
                 },
             },

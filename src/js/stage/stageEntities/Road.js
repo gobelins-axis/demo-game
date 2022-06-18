@@ -43,20 +43,26 @@ export default class Rails extends Object3D{
         const uniforms = {
             uTime: {value: 0},
             uMap: {value: AssetsManager.textures.Road},
+            fogFar: {value: 350},
+            fogNear: {value: 50},
+            fogColor: {value: new THREE.Color(0xfcca50)},
+            fogDensity: {value: 2},
         };
 
-        let geometry = new THREE.PlaneBufferGeometry(5, 500, 32, 32);
+        let geometry = new THREE.PlaneBufferGeometry(6.2, 500, 32, 32);
 
         this._mat = new THREE.ShaderMaterial({
             fragmentShader: fragmentShader,
             vertexShader: vertexShader,
-            uniforms: uniforms,
+            uniforms,
             // transparent: true, 
             side: THREE.DoubleSide,
-
+            fog: true,
+ 
         });
         this.road = new THREE.Mesh(geometry,  this._mat);
         this.road.rotation.x = Math.PI / 2;
+        this.road.position.y = -0.65;
         this.add(this.road);
     }
 }

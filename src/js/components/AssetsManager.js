@@ -1,11 +1,17 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import AnimationComponent from './AnimationComponent';
-
+import px from "../../assets/images/hdr/px.png";
+import nx from "../../assets/images/hdr/nx.png";
+import py from "../../assets/images/hdr/py.png";
+import ny from "../../assets/images/hdr/ny.png";
+import pz from "../../assets/images/hdr/pz.png";
+import nz from "../../assets/images/hdr/nz.png";
 const ASSETS = {
     models: {},
     sounds: {},
     textures: {},
+    hdrTextures: {},
     videos: {},
 };
 
@@ -15,6 +21,7 @@ class AssetsManager{
 
         this._gltfLoader = new GLTFLoader();
         this._textureLoader = new THREE.TextureLoader();
+        this._cubeTextureLoader = new THREE.CubeTextureLoader();
 
         this._additionalTextures = {};
     }
@@ -64,11 +71,32 @@ class AssetsManager{
 
     loadAssets() {
         this._loadTextures();
+        this._loadHdrTextures();
         this._loadVideos();
         this._loadModels();
         this._loadSounds();
 
         return Promise.all(this._promises);
+    }
+
+    _loadHdrTextures() {
+        let cubeTextureCache = [];
+        let textures = [px, nx, py, ny, pz, nz];
+        console.log(textures);
+
+        // for (const texture in cubeTextureCache) {
+        //     textures.push(cubeTextureCache[texture].file.default);
+        // }
+
+        let promise = new Promise((resolve, reject) => {
+            this._cubeTextureLoader.load(textures, resolve);
+        }).then((result) => {
+            result.encoding = THREE.sRGBEncoding;
+            result.flipY = false;
+            ASSETS.hdrTextures["background"] = result;
+        });
+
+        this._promises.push(promise);
     }
 
     _loadTextures() {
@@ -82,15 +110,6 @@ class AssetsManager{
             ),
             textureCache,
         );
-
-        for (const texture in this.additionalTextures) {
-            if(this.additionalTextures[texture]) {
-                textureCache[texture] = {
-                    file: this.additionalTextures[texture],
-                    name: texture,
-                };        
-            }
-        }
 
         for (const texture in textureCache) {
             let promise = new Promise((resolve, reject) => {
@@ -218,10 +237,6 @@ class AssetsManager{
             this._promises.push(promise);
         }
     }
-    
-    addTexturesIcecream(textures) {
-        this.additionalTextures = textures;
-    }
 
     get GLTFLoader() {
         return this._gltfLoader;
@@ -245,6 +260,10 @@ class AssetsManager{
 
     get textures() {
         return ASSETS.textures;
+    }
+
+    get hdrTextures() {
+        return ASSETS.hdrTextures;
     }
 
     importAll(r, cache) {

@@ -50,7 +50,8 @@ export default class Player_02 extends Object3D{
 
     build() {
         this._playerModel = this._model.scene;
-        this._playerModel.position.z = 200;
+        this._playerModel.position.z = 120;
+        this._playerModel.position.y = -0.6;
         this._playerModel.rotation.y = Math.PI;
         this._playerModel.scale.set(0.6, 0.6, 0.6);
         AppManager.PLAYER_02 = this._playerModel;
@@ -74,7 +75,9 @@ export default class Player_02 extends Object3D{
         // gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._playerModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
 
         // }});
-
+        gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z + 15, duration: 1, ease:"power3.out", onUpdate: () => {
+            AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
+        }});
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._ennemyOptions.direction, -4.5, 4.5);
         
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
@@ -113,7 +116,7 @@ export default class Player_02 extends Object3D{
         this._playerBox = new THREE.Box3().setFromObject(this._model.scene);
 
         const helper = new THREE.Box3Helper( this._playerBox, 0xffff00 );
-        this.add( helper );
+        // this.add( helper );
     }
 
     _keyDownHandler(e) {

@@ -53,6 +53,8 @@ export default class Player_01 extends Object3D{
     build() {
         this._model.animationComponent.playAnimation({animation: 'Idle', loop: true});
         this._playerModel = this._model.scene;
+        this._playerModel.position.z = -80;
+        this._playerModel.position.y = -0.6;
         
         AppManager.PLAYER_01 = this._playerModel;
 
@@ -67,13 +69,13 @@ export default class Player_01 extends Object3D{
             AppManager.LEFT_CAMERA.lookAt(this._model.scene.position);
         }});
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -2.8, 2.8);
         // this._playerModel.rotatio+n.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
         gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
     }
 
     resetPlayerPos() {
-        this._playerModel.position.z = 0;
+        this._playerModel.position.z = -80;
     }
 
     /** 
@@ -108,7 +110,7 @@ export default class Player_01 extends Object3D{
         this._playerBox = new THREE.Box3().setFromObject(this._model.scene);
 
         const helper = new THREE.Box3Helper( this._playerBox, 0xffff00 );
-        this.add( helper );
+        // this.add( helper );
     }
 
   

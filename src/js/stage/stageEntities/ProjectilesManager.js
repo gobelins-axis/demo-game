@@ -13,7 +13,7 @@ export default class ProjectilesManager extends Object3D{
         super();
         this.isModelAnimated = true;
         this.is3dModel = true;
-        this.model = AssetsManager.models.Donkey;
+        this.model = AssetsManager.models.Donkey2;
 
         this._projectiles = [];
         this._projectilesQueue = [];
@@ -63,7 +63,7 @@ export default class ProjectilesManager extends Object3D{
 
             ennemy.position.z -= 0.4 * ennemy.userData.speed;
             
-            if(  ennemy.position.z < -5) {
+            if(  ennemy.position.z < -100) {
                 // ennemy.position.z = 0;
                 this.resetProjectile(this._projectiles[index], index);
             }
@@ -84,7 +84,8 @@ export default class ProjectilesManager extends Object3D{
         const scale = 0.7;
         const model = Tools.cloneGltf(this.model);
         model.scene.position.copy(pos);
-    
+        const material = new THREE.MeshBasicMaterial({map: AssetsManager.textures.Donkey});
+        model.scene.getObjectByName("0000_SK_Donkey").material = material;
         // model.scene.rotation.y = Math.PI / 2;
 
         model.scene.scale.set(1.5, 1.5, 1.5);
@@ -98,7 +99,7 @@ export default class ProjectilesManager extends Object3D{
         
         model.scene.userData.boundingBox = box;
         const helper = new THREE.Box3Helper( box, 0xffff00 );
-        this.add( helper );
+        // this.add( helper );
         this._projectiles.push(model.scene);
         this._projectilesBoxes.push(box);
 
@@ -108,7 +109,7 @@ export default class ProjectilesManager extends Object3D{
     _startMovePlayer(object, p) {
         this._projectilesQueue.push(object);
 
-        object.userData.animationController.playAnimation({animation: "WalkHorse", loop: true, speed: 2});
+        object.userData.animationController.playAnimation({animation: "WalkHorse", loop: true, speed: 3});
         
         object.position.x = AppManager.PLAYER_02.position.x; 
         object.position.z = AppManager.PLAYER_02.position.z; 

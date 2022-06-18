@@ -156,10 +156,16 @@ export default class GPUParticles extends THREE.Object3D {
                 fadeOut: {
                     value: this.fadeOut,
                 },
+                fogFar: {value: 150},
+                fogNear: {value: 5},
+                fogColor: {value: new THREE.Color(0xfcca50)},
+                fogDensity: {value: 2},
             },
             blending: this.blending,
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
+            
+            fog: true,
         } );
 
         // define defaults for all values

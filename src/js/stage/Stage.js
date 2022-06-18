@@ -60,6 +60,7 @@ class Stage {
                 this.sceneEntities.player_02.projectilesManager.resetProjectile(this.sceneEntities.player_02.projectilesQueue[index]);
                 this.sceneEntities.player_01.isCollide = true;
                 this.sceneEntities.player_01.resetPlayerPos();
+                AppManager.EVENT_DISPATCHER.dispatchEvent({type: "player_hit", data: "player_01"});
 
                 setTimeout(() => {
                     this.sceneEntities.player_01.isCollide = false;
@@ -76,7 +77,7 @@ class Stage {
         this.sceneEntities = {
             lights: new Lights(),
             road: new Road(),
-            rails: new Rails(),
+            // rails: new Rails(),
             world: new World(),
             skyBox: new SkyBox(),
             cactusInstances: new CactusInstances(),
