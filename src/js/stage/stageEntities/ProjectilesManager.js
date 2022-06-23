@@ -13,7 +13,7 @@ export default class ProjectilesManager extends Object3D{
         super();
         this.isModelAnimated = true;
         this.is3dModel = true;
-        this.model = AssetsManager.models.Donkey2;
+        this.model = AssetsManager.models.Donkey;
 
         this._projectiles = [];
         this._projectilesQueue = [];

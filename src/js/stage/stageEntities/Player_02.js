@@ -17,7 +17,7 @@ export default class Player_02 extends Object3D{
         super();
         this.is3dModel = true;
         this._timeUpdate = 0;
-        this._model = AssetsManager.models.Cowboy2;
+        this._model = AssetsManager.models.Cowboy;
         this._playerOptions = {
             speed: 0,
             direction: 0,
