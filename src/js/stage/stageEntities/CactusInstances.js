@@ -5,8 +5,6 @@ import vertexShader from "../../shaders/Cactus/vertex.glsl";
 import AssetsManager from '../../components/AssetsManager';
 import AppManager from '../../components/AppManager';
 
-import GUI from "../../utils/GUI";
-
 export default class CactusInstances extends THREE.Object3D {
     constructor() {
         super();

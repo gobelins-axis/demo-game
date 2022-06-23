@@ -2,21 +2,16 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-// import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-
 //components
 
 //sceneEntities
 import Lights from './stageEntities/Lights';
 import Road from './stageEntities/Road';
-import Rails from './stageEntities/Rails';
 import World from './stageEntities/World';
 import SkyBox from './stageEntities/SkyBox';
-import Clouds from './stageEntities/Clouds';
 import CactusInstances from './stageEntities/CactusInstances';
 import Player_02 from './stageEntities/Player_02';
 import Player_01 from './stageEntities/Player_01';
-import WaterFloor from './stageEntities/WaterFloor';
 
 //utils
 import Tools from "../utils/Tools";
@@ -67,6 +62,15 @@ class Stage {
                 }, 10);
             };
         }
+        if(this.sceneEntities.player_01.playerPos.z > 120 && !this.sceneEntities.player_01.isWin) {
+            AppManager.EVENT_DISPATCHER.dispatchEvent({type: "player_hit", data: "player_02"});
+            this.sceneEntities.player_01.winPlayer();
+            this.sceneEntities.player_01.isWin = true;
+            setTimeout(() => {
+                this.sceneEntities.player_01.resetPlayerPos();
+            }, 3000);
+
+        }
     }
 
     /** 
@@ -77,14 +81,11 @@ class Stage {
         this.sceneEntities = {
             lights: new Lights(),
             road: new Road(),
-            // rails: new Rails(),
             world: new World(),
             skyBox: new SkyBox(),
             cactusInstances: new CactusInstances(),
-            // projectiles: new Projectiles(),
             player_01: new Player_01(),
             player_02: new Player_02(),
-            // waterFloor: new WaterFloor(),
         };
         for (let model in this.sceneEntities) {
             this.sceneEntities[model].build(this._models);

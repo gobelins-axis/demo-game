@@ -17,20 +17,15 @@ export default class Player_02 extends Object3D{
         super();
         this.is3dModel = true;
         this._timeUpdate = 0;
-        this._model = AssetsManager.models.Cowboy;
-        this._ennemyOptions = {
+        this._model = AssetsManager.models.Cowboy2;
+        this._playerOptions = {
             speed: 0,
             direction: 0,
             joystickAcceleration: 0,
+            anglePlayer: 0,
         };
 
-        this._ennemyControls = {
-            turnLeft: false,
-            turnRight: false,
-        };
-        this._meshes = [];
-
-        this._setupEnnemyControls();
+        this._setupPlayerControls();
         this._setupPlayerBoundingBox();
 
 
@@ -70,42 +65,46 @@ export default class Player_02 extends Object3D{
     update(delta) {
         this._projectilesManager.update();
         this._timeUpdate += 0.002;
-        this._playerModel.position.z += this._ennemyOptions.speed;
 
-        // gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._playerModel.position.x, duration: 1, ease:"power3.out", onUpdate: () => {
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
+        // this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
+        this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
 
-        // }});
         gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z + 15, duration: 1, ease:"power3.out", onUpdate: () => {
             AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
         }});
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._ennemyOptions.direction, -4.5, 4.5);
+
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
         
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
-        // this._playerModel.rotation.y = Tools.clamp(this._ennemyOptions.direction * 3, -Math.PI /2, Math.PI /2);
-        // gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._ennemyOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
+        if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Walk") {
+            this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Walk", loop: true, duration: 0.1, speed: 3});
+        }
+        if(this._playerOptions.anglePlayer === 0 && this._model.animationComponent.getCurrentAnim() !== "Idle"){
+            this._model.animationComponent.animFade({from:"Walk", to:"Idle", loop: true, duration: 0.1, speed: 1});
+        }
     }
 
     /** 
      * Private 
     */
 
-    _setupEnnemyControls(){
+    _setupPlayerControls(){
         AppManager.AXIS.registerKeys("q", "a", 2);
-        AppManager.AXIS.registerKeys("s", "b", 2);
-        AppManager.AXIS.registerKeys("d", "c", 2);
-        // AppManager.AXIS.registerKeys("f", "d", 1);
+        AppManager.AXIS.registerKeys("s", "x", 2);
+        AppManager.AXIS.registerKeys("d", "i", 2);
+        AppManager.AXIS.registerKeys("f", "s", 2);
 
-        const player1 = AppManager.AXIS.createPlayer({
+        const player2 = AppManager.AXIS.createPlayer({
             id: 2,
-            joystick: AppManager.AXIS.joystick2,
+            joysticks: AppManager.AXIS.joystick1,
             buttons: AppManager.AXIS.buttonManager.getButtonsById(2),
         });
 
 
-        player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
-        player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
-        AppManager.AXIS.joystick1.addEventListener("joystick:move", (e) => this._joystick1moveHandler(e));
-        AppManager.AXIS.joystick2.addEventListener("joystick:move", (e) => this._joystick2moveHandler(e));
+        player2.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        player2.addEventListener("keyup", (e) => this._keyUpHandler(e));
+        player2.joysticks[0].addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
 
     _setupPlayerBoundingBox() {
@@ -120,15 +119,7 @@ export default class Player_02 extends Object3D{
     }
 
     _keyDownHandler(e) {
-
-        if(e.key === "a") {
-            this._ennemyOptions.direction = 0.2;
-        }
-        if(e.key === "b") {
-            this._ennemyOptions.direction = -0.2;
-        }
-
-        if(e.key === "c"){
+        if(e.key === "a"){
             this._model.animationComponent.animFade({from:"Idle", to:"Punch", loop: false, duration: 0.1, speed: 3});
             setTimeout(() => {
                 this._projectilesManager.launchProjectile();
@@ -137,27 +128,19 @@ export default class Player_02 extends Object3D{
     }
 
     _keyUpHandler() {
-        this._ennemyOptions.direction = 0;
+        this._playerOptions.direction = 0;
 
         setTimeout(() => {
             this._model.animationComponent.animFade({ from:"Punch", to:"Idle", loop: true, duration: 1 });
         }, 300);
 
     }
-    _joystick1moveHandler(e) {
-        this._ennemyOptions.direction = e.position.x * -0.2;
-        // position1.x += speed * e.position.x;
-        // position1.y += speed * e.position.y;
-    }
-    _joystick2moveHandler(e) {
-        // console.log("cc");
-        // const speed = 50;
-        // this._ennemyOptions.direction = -0.2;
-        // position1.x += speed * e.position.x;
-        // position1.y += speed * e.position.y;
+  
+    _joystickMoveHandler(e) {
+        this._playerOptions.anglePlayer = Math.atan2(-e.position.x, -e.position.y);
     }
 
-    resetEnnemyOnCollision(body) {
+    resetPlayerOnCollision(body) {
         body.position.x = (Math.random()- 0.5) * 2 - 30;
         body.position.y = 0;
         body.position.z = (Math.random()- 0.5) * 2;

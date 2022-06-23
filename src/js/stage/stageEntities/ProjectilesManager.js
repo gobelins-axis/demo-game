@@ -18,7 +18,7 @@ export default class ProjectilesManager extends Object3D{
         this._projectiles = [];
         this._projectilesQueue = [];
         this._projectilesBoxes = [];
-        this._projectilesCount = 2;
+        this._projectilesCount = 50;
         this._instanceIndex = 0;
 
         this._boundingBoxMin = new THREE.Vector3(-0.3, -1, -2);
@@ -115,6 +115,8 @@ export default class ProjectilesManager extends Object3D{
         object.position.z = AppManager.PLAYER_02.position.z; 
         object.userData.speed = 2;
         object.visible = true;
+        AppManager.EVENT_DISPATCHER.dispatchEvent({type: "shoot_projectile", data: ""});
+
     }
 
     resetProjectile(ennemy, index) {
@@ -130,6 +132,7 @@ export default class ProjectilesManager extends Object3D{
         }, 1);
         this._objectPooling.add(ennemy);
         this._projectilesQueue.shift();
+
     }
 
 }

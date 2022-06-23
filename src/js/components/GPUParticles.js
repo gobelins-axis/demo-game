@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import fragmentShader from '../shaders/GPUParticles/frag.glsl';
 import vertexShader from '../shaders/GPUParticles/vert.glsl';
 import Tools from "../utils/Tools";
-// import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 
 const UPDATEABLE_ATTRIBUTES = [
     'positionStart', 'startTime',

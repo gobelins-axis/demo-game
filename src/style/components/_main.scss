@@ -18,9 +18,9 @@
     // height: 50px;
     // background-color: blue;
     // margin: 20px;
-    // display: flex;
-    // justify-content: space-between;
-    // align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .player__ui .player__lifes{
     width: 200px;
@@ -45,4 +45,34 @@
     width: 30px;
     height: 30px;
     position: absolute;
+}
+.player__ammunition{
+    position: absolute;
+    top: 70%;
+    right: 0;
+    width: 100px;
+    height: 100px;
+}
+.ammunition__number{
+    // position: absolute;
+    font-family: impact;
+    color: #58452A;
+    font-size: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, #BAA68D 0%, rgba(252,201,80,1) 92%);
+}
+.image__donkey{
+    position: absolute;
+    top: -60%;
+    left: 5px;
+    transform: rotate(10deg);
+}
+.image__donkey img{
+    width: 70px;
+    height: 70px;
 }

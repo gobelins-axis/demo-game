@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import AppManager from "../components/AppManager";
 
 class Tools{
     constructor() {
@@ -84,7 +85,28 @@ class Tools{
         return clone;
     }
 
-     
+    angleToPoint(e, anglePlayer, oldPos) {
+        let X  = (e.position.x / window.innerWidth) * 2 - 1;
+        let Y = - (e.position.y / window.innerHeight) * 2 + 1;
+        let vector = new THREE.Vector3(X, Y, 0.5);
+        vector.unproject( AppManager.LEFT_CAMERA );
+        let dir = vector.sub( AppManager.LEFT_CAMERA.position ).normalize();
+        let distance = - AppManager.LEFT_CAMERA.position.y / dir.y;
+        let pos = AppManager.LEFT_CAMERA.position.clone().add( dir.multiplyScalar( distance ));
+        let dx = pos.x - oldPos.x;
+        let dy = pos.z - oldPos.z;
+        let len = Math.sqrt(dx * dx + dy * dy);
+        dx /= len ? len : 1.0; dy /= len ? len : 1.0;
+        let dirx = Math.cos(anglePlayer),
+            diry = Math.sin(anglePlayer);
+        dirx += (dx - dirx) * 0.1;
+        diry += (dy - diry) * 0.1;
+        anglePlayer = Math.atan2(diry, dirx);
+        oldPos.x = pos.x;
+        oldPos.z = pos.z;
+        console.log(anglePlayer);
+        return {anglePlayer, pos, oldPos};
+    }
     
     isFunc(funcName){
         return typeof funcName !== "undefined";

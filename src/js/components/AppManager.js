@@ -11,7 +11,6 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
 
 import Axis from 'axis-api';
-import AssetsManager from './AssetsManager';
 
 const DEBUG = false; 
 const FPS = 60; 
@@ -104,6 +103,7 @@ class AppManager{
     set PLAYER_01(value) {
         this._player01 = value;
     }
+    
     set PLAYER_02(value) {
         this._player02 = value;
     }
@@ -126,7 +126,7 @@ class AppManager{
         
         this._plane = this._setupPlane();
 
-        // this._soundManager =  this._setupSoundManager();
+        // this._soundManager =  this._setupSoundManager()
         this._uiManager =  this._setupUIManager();
         this._renderPass = this._setupRenderPass();
 
@@ -159,6 +159,7 @@ class AppManager{
     }
 
     resize() {
+        console.log("cc");
         this._width = window.innerWidth;
         this._height = window.innerHeight;
 
@@ -212,10 +213,6 @@ class AppManager{
     _setupRenderer() {
         const renderer = new THREE.WebGLRenderer({
             canvas: this._canvas,
-            // antialias: true,
-            // alpha: true,
-            // sortObjects: false,
-            // logarithmicDepthBuffer: true,
         });
         
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -233,9 +230,7 @@ class AppManager{
 
     _setupRenderTargetScene() {
         const renderTargetScene = new THREE.Scene();
-        // renderTargetScene.background = AssetsManager.hdrTextures.background;
         renderTargetScene.fog = new THREE.Fog(new THREE.Color(0xfcca50), 100, 150);
-
         return renderTargetScene;
     }
 
@@ -270,7 +265,6 @@ class AppManager{
         const rtWidth = window.innerWidth / 2;
         const rtHeight = window.innerHeight;
         const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
-        // renderTarget.samples = 1;
         return renderTarget;
     }
 
@@ -320,7 +314,7 @@ class AppManager{
     }
 
     _setupRenderPass() {
-        const renderPass = new RenderPass( this._scene, this._leftCamera );
+        const renderPass = new RenderPass( this._scene, this._mainCamera );
         const afterimagePass = new AfterimagePass();
         this._composer.addPass( renderPass );
         this._composer.addPass( afterimagePass );
@@ -355,7 +349,7 @@ class AppManager{
         gsap.ticker.add(() =>  this._tickHandler()); 
     
         // document.addEventListener("scroll", (e) => this._onScrollHandler(e), false);
-
+        window.addEventListener("resize", () => this.resize());
         this._canvas.addEventListener("touchstart", (e) => this._touchStartHandler(e), false);
         this._canvas.addEventListener("touchmove", (e) => this._touchMoveHandler(e), false);
         this._canvas.addEventListener("touchend", (e) => this._touchEndHandler(e), false);
@@ -466,7 +460,7 @@ class AppManager{
         // this._controls.enableDamping = true;
         // this._controls.enabled = this.STATUS.isDebug;
 
-        this._controls.target = new THREE.Vector3(0, 1, 0);
+        // this._controls.target = new THREE.Vector3(0, 1, 0);
     }
 }
 

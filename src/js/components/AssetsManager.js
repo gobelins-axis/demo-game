@@ -71,7 +71,7 @@ class AssetsManager{
 
     loadAssets() {
         this._loadTextures();
-        this._loadHdrTextures();
+        // this._loadHdrTextures();
         this._loadVideos();
         this._loadModels();
         this._loadSounds();
@@ -82,8 +82,6 @@ class AssetsManager{
     _loadHdrTextures() {
         let cubeTextureCache = [];
         let textures = [px, nx, py, ny, pz, nz];
-        console.log(textures);
-
         // for (const texture in cubeTextureCache) {
         //     textures.push(cubeTextureCache[texture].file.default);
         // }

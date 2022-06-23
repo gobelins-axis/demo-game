@@ -14,20 +14,18 @@ export default class Player_01 extends Object3D{
     constructor(options) {
         super();
         this.is3dModel = true;
-        this._timeUpdate = 0;
+        // this._timeUpdate = 0;
         this._model = AssetsManager.models.TheBoss;
         this._playerOptions = {
             speed: 0,
             direction: 0,
             joystickAcceleration: 0,
+            anglePlayer: 0,
         };
 
         this._isCollide = false;
 
-        this._playerControls = {
-            turnLeft: false,
-            turnRight: false,
-        };
+        this._isWin = false;
 
         this._setupPlayerControls();
         this._setupPlayerBoundingBox();
@@ -41,9 +39,20 @@ export default class Player_01 extends Object3D{
     get isCollide() {
         return this._isCollide;
     }
+    get isWin() {
+        return this._isWin;
+    }
+
+    get playerPos() {
+        return this._playerModel.position;
+    }
 
     set isCollide(value) {
         this._isCollide = value;
+    }
+
+    set isWin(value) {
+        this._isWin = value;
     }
 
     /** 
@@ -62,21 +71,38 @@ export default class Player_01 extends Object3D{
     }
 
     update(delta) {
-        this._timeUpdate += 0.002;
-        this._playerModel.position.z += this._playerOptions.speed;
+        this._gamepadEmulator.update();
+        if(this._isWin) return;
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
+        this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
+        this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
 
         gsap.to(AppManager.LEFT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
             AppManager.LEFT_CAMERA.lookAt(this._model.scene.position);
         }});
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -2.8, 2.8);
-        // this._playerModel.rotatio+n.y = Tools.clamp(this._playerOptions.direction * 3, -Math.PI /2, Math.PI /2);
-        gsap.to(this._playerModel.rotation, {y: Tools.clamp(this._playerOptions.direction * 2, -Math.PI /2, Math.PI /2), duration: 0.2});
+
+        if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Run") {
+            this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
+        }
+        if(this._playerOptions.anglePlayer === 0 && this._model.animationComponent.getCurrentAnim() !== "Idle"){
+            this._model.animationComponent.animFade({from:"Run", to:"Idle", loop: true, duration: 0.1, speed: 1});
+        }
+    }
+
+    winPlayer() {
+        this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Dance", loop: true, duration: 0.1, speed: 1});
+
     }
 
     resetPlayerPos() {
+        this._isWin = false;
         this._playerModel.position.z = -80;
+        this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Idle", loop: true, duration: 0.1, speed: 1});
+
     }
+
+
 
     /** 
      * Private 
@@ -85,21 +111,24 @@ export default class Player_01 extends Object3D{
    
     _setupPlayerControls(){
         AppManager.AXIS.registerKeys("ArrowLeft", "a", 1);
-        AppManager.AXIS.registerKeys("ArrowRight", "b", 1);
-        AppManager.AXIS.registerKeys("ArrowUp", "c", 1);
-        AppManager.AXIS.registerKeys("ArrowDown", "d", 1);
-        // AppManager.AXIS.registerKeys("e", "c", 1);
-        // AppManager.AXIS.registerKeys("r", "d", 1);
+        AppManager.AXIS.registerKeys("ArrowRight", "x", 1);
+        AppManager.AXIS.registerKeys("ArrowUp", "i", 1);
+        AppManager.AXIS.registerKeys("ArrowDown", "s", 1);
+
+        this._gamepadEmulator = AppManager.AXIS.createGamepadEmulator(0);
+        AppManager.AXIS.joystick1.setGamepadEmulatorJoystick(this._gamepadEmulator, 0);
+        AppManager.AXIS.registerGamepadEmulatorKeys(this._gamepadEmulator, 0, "a", 1);
 
         const player1 = AppManager.AXIS.createPlayer({
             id: 1,
-            joystick: AppManager.AXIS.joystick1,
+            joysticks: AppManager.AXIS.joystick1,
             buttons: AppManager.AXIS.buttonManager.getButtonsById(1),
         });
 
 
         player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
         player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
+        player1.joysticks[0].addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
 
     _setupPlayerBoundingBox() {
@@ -119,35 +148,14 @@ export default class Player_01 extends Object3D{
         if(this._model.animationComponent.getCurrentAnim() !== "Run") {
             this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
         }
-        if(e.key === "a") {
-            this._playerOptions.direction = 0.2;
-        }
-        if(e.key === "b") {
-            this._playerOptions.direction = -0.2;
-        }
-        if(e.key === "c") {
-            this._playerOptions.speed = 0.2;
-        }
-        if(e.key === "d") {
-            this._playerOptions.speed = -0.2;
-        }
     }
 
     _keyUpHandler() {
-        this._playerOptions.direction = 0;
-        this._playerOptions.speed = 0;
         this._model.animationComponent.animFade({from:"Run", to:"Idle", loop: true, duration: 0.1, speed: 1});
 
     }
 
     _joystickMoveHandler(e) {
-        if(e.joystickId === 1) {
-            this._playerOptions.speed = e.position.x * 0.2;
-            this._playerOptions.direction = e.position.y * 0.2;
-        } 
-        if(e.joystickId === 2) {
-            // AppManager.CAMERA.lookAt(e.position.y, e.position.x, 0);
-        }
-        // this._playerPosition.x += speed * e.x;
+        this._playerOptions.anglePlayer = Math.atan2(-e.position.x, e.position.y);
     }
 }
