@@ -24,7 +24,10 @@ export default class Player_02 extends Object3D{
             joystickAcceleration: 0,
             anglePlayer: 0,
         };
-
+        this._pos = {
+            x: 0,
+            y: 0,
+        };
         this._setupPlayerControls();
         this._setupPlayerBoundingBox();
 
@@ -57,7 +60,7 @@ export default class Player_02 extends Object3D{
         // AppManager.RIGHT_CAMERA.lookAt(this._playerModel.position);
         this._projectilesManager = new ProjectilesManager();
 
-        this._model.animationComponent.playAnimation({animation: 'Idle', loop: true, speed: 1});
+        this._model.animationComponent.playAnimation({animation: 'Walk', loop: true, speed: 1});
 
         this.add(this._playerModel, this._projectilesManager);
     }
@@ -66,15 +69,12 @@ export default class Player_02 extends Object3D{
         this._projectilesManager.update();
         this._timeUpdate += 0.002;
 
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
-        // this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + this._pos.x, -2.8, 2.8);
         this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
 
-        gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z + 15, duration: 1, ease:"power3.out", onUpdate: () => {
-            AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
-        }});
-
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x += this._playerOptions.direction, -4.5, 4.5);
+        // gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z + 15, duration: 1, ease:"power3.out", onUpdate: () => {
+        //     AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
+        // }});
         
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
         if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Walk") {
@@ -97,7 +97,7 @@ export default class Player_02 extends Object3D{
 
         const player2 = AppManager.AXIS.createPlayer({
             id: 2,
-            joysticks: AppManager.AXIS.joystick1,
+            joysticks: AppManager.AXIS.joystick2,
             buttons: AppManager.AXIS.buttonManager.getButtonsById(2),
         });
 
@@ -121,9 +121,7 @@ export default class Player_02 extends Object3D{
     _keyDownHandler(e) {
         if(e.key === "a"){
             this._model.animationComponent.animFade({from:"Idle", to:"Punch", loop: false, duration: 0.1, speed: 3});
-            setTimeout(() => {
-                this._projectilesManager.launchProjectile();
-            }, 200);
+            this._projectilesManager.launchProjectile();
         }
     }
 
@@ -137,6 +135,8 @@ export default class Player_02 extends Object3D{
     }
   
     _joystickMoveHandler(e) {
+        this._pos.x = -e.position.x * 0.2;
+        this._pos.y = e.position.y * 0.2;
         this._playerOptions.anglePlayer = Math.atan2(-e.position.x, -e.position.y);
     }
 

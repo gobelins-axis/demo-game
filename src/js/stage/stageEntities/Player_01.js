@@ -23,6 +23,11 @@ export default class Player_01 extends Object3D{
             anglePlayer: 0,
         };
 
+        this._pos = {
+            x: 0,
+            y: 0,
+        };
+
         this._isCollide = false;
 
         this._isWin = false;
@@ -73,8 +78,10 @@ export default class Player_01 extends Object3D{
     update(delta) {
         this._gamepadEmulator.update();
         if(this._isWin) return;
-        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
-        this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
+        this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + this._pos.x, -2.8, 2.8);
+        this._playerModel.position.z += this._pos.y;
+        // this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
+        // this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
         this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
 
         gsap.to(AppManager.LEFT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
@@ -126,8 +133,8 @@ export default class Player_01 extends Object3D{
         });
 
 
-        player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
-        player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
+        // player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        // player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
         player1.joysticks[0].addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
 
@@ -142,20 +149,9 @@ export default class Player_01 extends Object3D{
         // this.add( helper );
     }
 
-  
- 
-    _keyDownHandler(e) {
-        if(this._model.animationComponent.getCurrentAnim() !== "Run") {
-            this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
-        }
-    }
-
-    _keyUpHandler() {
-        this._model.animationComponent.animFade({from:"Run", to:"Idle", loop: true, duration: 0.1, speed: 1});
-
-    }
-
     _joystickMoveHandler(e) {
+        this._pos.x = -e.position.x * 0.2;
+        this._pos.y = e.position.y * 0.2;
         this._playerOptions.anglePlayer = Math.atan2(-e.position.x, e.position.y);
     }
 }

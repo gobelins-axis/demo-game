@@ -130,7 +130,7 @@ class AppManager{
         this._uiManager =  this._setupUIManager();
         this._renderPass = this._setupRenderPass();
 
-        // this._setupOrbitControls();
+        this._setupOrbitControls();
 
         if(this.STATUS.isDebug) this._setupStats();
         
