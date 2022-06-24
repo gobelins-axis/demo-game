@@ -7,7 +7,6 @@ const ASSETS = {
     sounds: {},
     textures: {},
     hdrTextures: {},
-    videos: {},
 };
 
 class AssetsManager{
@@ -33,36 +32,15 @@ class AssetsManager{
 
     hideLoadingScreen() {
         const timeline = gsap.timeline();
-        // timeline.to(this._imageCactus, {y: 10, autoAlpha: 0}, 1.1);
         timeline.to(this._loaderScreen, {autoAlpha: 0, delay: 4});
     }
 
     loadAssets() {
         this._loadTextures();
-        // this._loadHdrTextures();
-        // this._loadVideos();
         this._loadModels();
         // this._loadSounds();
 
         return Promise.all(this._promises);
-    }
-
-    _loadHdrTextures() {
-        let cubeTextureCache = [];
-        let textures = [px, nx, py, ny, pz, nz];
-        // for (const texture in cubeTextureCache) {
-        //     textures.push(cubeTextureCache[texture].file.default);
-        // }
-
-        let promise = new Promise((resolve, reject) => {
-            this._cubeTextureLoader.load(textures, resolve);
-        }).then((result) => {
-            result.encoding = THREE.sRGBEncoding;
-            result.flipY = false;
-            ASSETS.hdrTextures["background"] = result;
-        });
-
-        this._promises.push(promise);
     }
 
     _loadTextures() {
@@ -86,48 +64,6 @@ class AssetsManager{
                 result.flipY = false;
                 ASSETS.textures[textureCache[texture].name] = result;
             });
-
-            this._promises.push(promise);
-        }
-    }
-
-    _loadVideos() {
-        let videoCache = [];
- 
-        this.importAll(
-            require.context(
-                "../../assets/videos/",
-                true,
-                /\.(?:mp4)$/i,
-            ),
-            videoCache,
-        );
-        for (const video in videoCache) {
-            const videoFile = videoCache[video].file.default;
-            const videoHTML = document.createElement('video');
-            videoHTML.src = videoFile;
-
-            videoHTML.autoplay = true;
-            videoHTML.loop = true;
-            videoHTML.muted = true;
-            videoHTML.playsinline = true;
-    
-            const promise = new Promise((resolve) => {
-                videoHTML.addEventListener('canplay', () => {
-                    const videoTexture = new THREE.VideoTexture(videoHTML);
-                    videoTexture.flipY = false;
-                    videoHTML.play();
-    
-                    // setTimeout(() => {
-                    //     videoHTML.pause();
-                    // }, 1);
-    
-                    resolve(videoTexture);
-                });
-            }).then((result) => {
-                ASSETS.videos[videoCache[video].name] = result;
-            });;
-    
 
             this._promises.push(promise);
         }
@@ -256,10 +192,6 @@ class AssetsManager{
 
     get models() {
         return ASSETS.models;
-    }
-
-    get videos() {
-        return ASSETS.videos;
     }
 
     get sounds() {
