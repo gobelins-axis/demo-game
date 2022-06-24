@@ -40,9 +40,9 @@ class AssetsManager{
     loadAssets() {
         this._loadTextures();
         // this._loadHdrTextures();
-        this._loadVideos();
+        // this._loadVideos();
         this._loadModels();
-        this._loadSounds();
+        // this._loadSounds();
 
         return Promise.all(this._promises);
     }
