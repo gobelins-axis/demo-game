@@ -51,6 +51,11 @@ class UIManager{
         }
     }
     _onShootProjectile() {
+        if (this._projectilesCount === 0) {
+            AppManager.EVENT_DISPATCHER.dispatchEvent({type: "gameLoose", data:"secondPlayer"});
+            return;
+        };
+
         this._projectilesCount -= 1;
         this._ui.shootNumberProjectiles.innerHTML = this._projectilesCount;
 

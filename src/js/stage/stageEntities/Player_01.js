@@ -23,6 +23,11 @@ export default class Player_01 extends Object3D{
             anglePlayer: 0,
         };
 
+        this._isJumping = false;
+
+
+        this._playerLookAtVector = new THREE.Vector3(0, -0.5, 0);
+
         this._pos = {
             x: 0,
             y: 0,
@@ -80,20 +85,24 @@ export default class Player_01 extends Object3D{
         if(this._isWin) return;
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + this._pos.x, -2.8, 2.8);
         this._playerModel.position.z += this._pos.y;
+
+        this._playerLookAtVector.x = this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer);
+        this._playerLookAtVector.y = this._playerModel.position.y;
+        this._playerLookAtVector.z = this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer); 
         // this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer) * 0.2, -2.8, 2.8);
         // this._playerModel.position.z += Math.cos(this._playerOptions.anglePlayer) * 0.2;
-        this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
+        this._playerModel.lookAt(this._playerLookAtVector);
 
-        gsap.to(AppManager.LEFT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z - 15, duration: 1, ease:"power3.out", onUpdate: () => {
+        gsap.to(AppManager.LEFT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 3, z: this._model.scene.position.z - 7, duration: 2, onUpdate: () => {
             AppManager.LEFT_CAMERA.lookAt(this._model.scene.position);
         }});
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
 
-        if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Run") {
+        if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Run" && this._model.animationComponent.getCurrentAnim() !== "Jump") {
             this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, speed: 3});
         }
-        if(this._playerOptions.anglePlayer === 0 && this._model.animationComponent.getCurrentAnim() !== "Idle"){
-            this._model.animationComponent.animFade({from:"Run", to:"Idle", loop: true, duration: 0.1, speed: 1});
+        if(this._playerOptions.anglePlayer === 0 && this._model.animationComponent.getCurrentAnim() !== "Idle" && this._model.animationComponent.getCurrentAnim() !== "Jump"){
+            this._model.animationComponent.animFade({from:this._model.animationComponent.getCurrentAnim(), to:"Idle", loop: true, duration: 0.1, speed: 1});
         }
     }
 
@@ -133,7 +142,7 @@ export default class Player_01 extends Object3D{
         });
 
 
-        // player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
+        player1.addEventListener("keydown", (e) => this._keyDownHandler(e));
         // player1.addEventListener("keyup", (e) => this._keyUpHandler(e));
         player1.joysticks[0].addEventListener("joystick:move", (e) => this._joystickMoveHandler(e));
     }
@@ -153,5 +162,21 @@ export default class Player_01 extends Object3D{
         this._pos.x = -e.position.x * 0.2;
         this._pos.y = e.position.y * 0.2;
         this._playerOptions.anglePlayer = Math.atan2(-e.position.x, e.position.y);
+    }
+    _keyDownHandler(e) {
+        if(e.key === "i" && !this._isJumping){
+            this._isJumping = true;
+            this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Jump", loop: false, duration: 0.1, speed: 2});
+            
+            const timeline = new gsap.timeline();
+            timeline.to(this._playerModel.position, {y: 2, onComplete: () =>  {
+                this._model.animationComponent.animFade({from: this._model.animationComponent.getCurrentAnim(), to:"Run", loop: true, duration: 0.1, delay: 0.6, speed: 3});
+            }});
+            timeline.to(this._playerModel.position, {y: -0.6, ease: "bounce.out", onComplete: () => {
+                this._playerLookAtVector.y = -0.5;
+                this._isJumping = false;
+            }});
+            // this._playerLookAtVector.y = 2;
+        }
     }
 }

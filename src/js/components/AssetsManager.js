@@ -1,12 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import AnimationComponent from './AnimationComponent';
-import px from "../../assets/images/hdr/px.png";
-import nx from "../../assets/images/hdr/nx.png";
-import py from "../../assets/images/hdr/py.png";
-import ny from "../../assets/images/hdr/ny.png";
-import pz from "../../assets/images/hdr/pz.png";
-import nz from "../../assets/images/hdr/nz.png";
+import gsap from 'gsap';
 const ASSETS = {
     models: {},
     sounds: {},
@@ -19,54 +14,27 @@ class AssetsManager{
     constructor() {
         this._promises = [];
 
-        this._gltfLoader = new GLTFLoader();
-        this._textureLoader = new THREE.TextureLoader();
-        this._cubeTextureLoader = new THREE.CubeTextureLoader();
+        this._loaderScreen = document.querySelector('.js-loader');
+        this._progressValue = document.querySelector('.js-mask');
+        this._imageCactus = document.querySelector('.image__empty');
+        
+        this._loaderManager = new THREE.LoadingManager();
+        
+        this._loaderManager.onProgress = ( url, itemsLoaded, itemsTotal ) => {
+            gsap.to(this._progressValue, {height: (itemsLoaded / itemsTotal * 110) + 'px', duration: 3, ease: "bounce.inOut"});
+        };
+        
+        this._promises = [];
+        this._gltfLoader = new GLTFLoader(this._loaderManager);
+        this._textureLoader = new THREE.TextureLoader(this._loaderManager);
 
         this._additionalTextures = {};
     }
 
-    loadFont(fonts, callback) {
-        if (fonts.length > 0) {
-            var strTest = "giItTWQy01234&@=-i?0";
-            var _noFont = document.createElement("div");
-            document.body.appendChild(_noFont);
-            _noFont.innerText = strTest;
-            _noFont.style.display = "inline";
-            _noFont.style.visibility = "hidden";
-            _noFont.style.position = "fixed";
-            var _myFont = document.createElement("div");
-            document.body.appendChild(_myFont);
-            _myFont.innerText = strTest;
-            _myFont.style.display = "inline";
-            _myFont.style.visibility = "hidden";
-            _myFont.style.position = "fixed";
-            tryLoad();
-            var id = 0;
-            function tryLoad(){
-                var timer = setInterval(function(){
-                    _myFont.style.fontFamily = fonts[id];
-                    if (
-                        _noFont.getBoundingClientRect().width !==
-                        _myFont.getBoundingClientRect().width
-                    ) {
-                        console.log(fonts[id] + " loaded");
-                        if (id >= fonts.length - 1) {
-                            clearInterval(timer);
-                            document.body.removeChild(_noFont);
-                            document.body.removeChild(_myFont);
-                            setTimeout(() => {
-                                callback();
-                            }, 200);
-                        } else {
-                            id++;
-                        }
-                    }
-                }, 100);
-            }
-        } else {
-            callback();
-        }
+    hideLoadingScreen() {
+        const timeline = gsap.timeline();
+        // timeline.to(this._imageCactus, {y: 10, autoAlpha: 0}, 1.1);
+        timeline.to(this._loaderScreen, {autoAlpha: 0, delay: 4});
     }
 
     loadAssets() {
@@ -233,6 +201,48 @@ class AssetsManager{
                 ASSETS.sounds[soundCache[sound].name] = result;
             });
             this._promises.push(promise);
+        }
+    }
+    _loadFont(fonts, callback) {
+        if (fonts.length > 0) {
+            var strTest = "giItTWQy01234&@=-i?0";
+            var _noFont = document.createElement("div");
+            document.body.appendChild(_noFont);
+            _noFont.innerText = strTest;
+            _noFont.style.display = "inline";
+            _noFont.style.visibility = "hidden";
+            _noFont.style.position = "fixed";
+            var _myFont = document.createElement("div");
+            document.body.appendChild(_myFont);
+            _myFont.innerText = strTest;
+            _myFont.style.display = "inline";
+            _myFont.style.visibility = "hidden";
+            _myFont.style.position = "fixed";
+            tryLoad();
+            var id = 0;
+            function tryLoad(){
+                var timer = setInterval(function(){
+                    _myFont.style.fontFamily = fonts[id];
+                    if (
+                        _noFont.getBoundingClientRect().width !==
+                        _myFont.getBoundingClientRect().width
+                    ) {
+                        console.log(fonts[id] + " loaded");
+                        if (id >= fonts.length - 1) {
+                            clearInterval(timer);
+                            document.body.removeChild(_noFont);
+                            document.body.removeChild(_myFont);
+                            setTimeout(() => {
+                                callback();
+                            }, 200);
+                        } else {
+                            id++;
+                        }
+                    }
+                }, 100);
+            }
+        } else {
+            callback();
         }
     }
 

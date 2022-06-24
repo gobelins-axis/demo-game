@@ -70,11 +70,12 @@ export default class Player_02 extends Object3D{
         this._timeUpdate += 0.002;
 
         this._playerModel.position.x = Tools.clamp(this._playerModel.position.x + this._pos.x, -2.8, 2.8);
+        this._playerModel.position.z = Tools.clamp(this._playerModel.position.z + this._pos.y, 115, 125);
         this._playerModel.lookAt(new THREE.Vector3(this._playerModel.position.x + Math.sin(this._playerOptions.anglePlayer), -0.5, this._playerModel.position.z + Math.cos(this._playerOptions.anglePlayer)));
 
-        // gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 5, z: this._model.scene.position.z + 15, duration: 1, ease:"power3.out", onUpdate: () => {
-        //     AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
-        // }});
+        gsap.to(AppManager.RIGHT_CAMERA.position, {x: this._model.scene.position.x, y: this._model.scene.position.y + 3, z: this._model.scene.position.z + 7, duration: 2, onUpdate: () => {
+            AppManager.RIGHT_CAMERA.lookAt(this._model.scene.position);
+        }});
         
         this._playerBox.copy(this._box).applyMatrix4( this._playerModel.matrixWorld );
         if((this._playerOptions.anglePlayer > 0 || this._playerOptions.anglePlayer < 0) && this._model.animationComponent.getCurrentAnim() !== "Walk") {
@@ -85,7 +86,7 @@ export default class Player_02 extends Object3D{
         }
     }
 
-    /** 
+    /**
      * Private 
     */
 
@@ -136,7 +137,7 @@ export default class Player_02 extends Object3D{
   
     _joystickMoveHandler(e) {
         this._pos.x = -e.position.x * 0.2;
-        this._pos.y = e.position.y * 0.2;
+        this._pos.y = -e.position.y * 0.2;
         this._playerOptions.anglePlayer = Math.atan2(-e.position.x, -e.position.y);
     }
 

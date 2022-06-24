@@ -7,6 +7,7 @@ import gsap from "gsap";
 
 const init = () => {
     AssetsManager.loadAssets().then(() => {
+        AssetsManager.hideLoadingScreen();
         AppManager.setup();
         AppManager.createLevel();
     });

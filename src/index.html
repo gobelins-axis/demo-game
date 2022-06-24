@@ -8,9 +8,22 @@
 </head>
 <body>
 
+  <div class="js-loader loading__container">
+    <div class="image__container image__empty">
+      <img class="loading__image" src="assets/cactus-empty.png">
+      <div class="mask__container">
+        <span class="js-mask mask"></span>
+      </div>
+    </div>
+    <div class="image__container image__full">
+      <!-- <img class="loading__image" src="assets/cactus-loaded.png"> -->
+    </div>
+  </div>
+
   <div class="canvas-container">
       <canvas class="canvas"></canvas>
   </div>
+
     <div class="players__container">
       <div class="first__player player__ui">
         <div class="player__lifes js-life-first">
